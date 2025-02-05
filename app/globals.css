@@ -71,9 +71,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-.yatra-one-regular {
-  font-family: "Yatra One", serif;
-  font-weight: 400;
-  font-style: normal;
-}

@@ -94,7 +94,7 @@ export default function Header() {
             <SheetContent>
               <div className="flex items-center mb-8">
                 <Image
-                  src="https://i.imgur.com/YiNkXOg.png"
+                  src={Logo}
                   alt="Prashil Foundation Logo"
                   width={40}
                   height={40}

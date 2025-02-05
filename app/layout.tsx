@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Yatra_One } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ['latin'] });
@@ -18,15 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Yatra+One&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className={inter.className}>
+        <div className='h-20'></div>
         {children}
-        <Toaster />
+        <Toaster/>
       </body>
     </html>
   );
