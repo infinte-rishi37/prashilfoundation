@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState }, React from 'react';
+import { useEffect, useState } from 'react';
 import { GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -159,7 +159,8 @@ export default function EducationCoaching() {
                     <CardDescription>Starts: {new Date(course.start_date).toLocaleDateString()}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg font-semibold mb-4">₹{course.fees.toLocaleString()}</p> <boltAction type="file" filePath="app/services/education-coaching/page.tsx">                    <Button 
+                    <p className="text-lg font-semibold mb-4">₹{course.fees.toLocaleString()}</p>
+                    <Button 
                       onClick={() => handleContactClick(course)}
                       className="w-full"
                     >

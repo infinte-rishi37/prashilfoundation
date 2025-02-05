@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${inter.className} min-h-full flex flex-col`}>
         <Header />
-        <div className="flex-1">
+        <div className="flex-1 mt-20">
           {children}
         </div>
         <Footer />
