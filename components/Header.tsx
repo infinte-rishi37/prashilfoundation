@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import Logo from "@/app/public/images/logo.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,7 @@ export default function Header() {
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
+      // setUser(session?.user || null);
     });
 
     return () => {
@@ -42,7 +43,7 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
-                src="https://i.imgur.com/YiNkXOg.png"
+                src={Logo}
                 alt="Prashil Foundation Logo"
                 width={50}
                 height={50}
