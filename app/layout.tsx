@@ -1,7 +1,9 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Yatra_One } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,11 +19,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className='h-20'></div>
-        {children}
-        <Toaster/>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} min-h-full flex flex-col`}>
+        <Header />
+        <div className="flex-1">
+          {children}
+        </div>
+        <Footer />
+        <Toaster />
       </body>
     </html>
   );

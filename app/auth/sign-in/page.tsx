@@ -9,9 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -22,6 +21,7 @@ type SignInForm = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -47,8 +47,7 @@ export default function SignInPage() {
         description: "You have been signed in.",
       });
 
-      // Redirect to home page
-      window.location.href = "/";
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: "Error",
@@ -60,58 +59,52 @@ export default function SignInPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container px-4 py-24">
-        <div className="max-w-md mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    {...register("email")}
-                    className={errors.email ? "border-destructive" : ""}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-                  )}
-                </div>
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  {...register("email")}
+                  className={errors.email ? "border-destructive" : ""}
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+                )}
+              </div>
 
-                <div>
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    {...register("password")}
-                    className={errors.password ? "border-destructive" : ""}
-                  />
-                  {errors.password && (
-                    <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
-                  )}
-                </div>
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  {...register("password")}
+                  className={errors.password ? "border-destructive" : ""}
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
+                )}
+              </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
 
-                <p className="text-center text-sm text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link href="/auth/sign-up" className="text-primary hover:underline">
-                    Sign up
-                  </Link>
-                </p>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+              <p className="text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link href="/auth/sign-up" className="text-primary hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-
-      <Footer />
-    </main>
+    </div>
   );
 }

@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState }, React from 'react';
 import { GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactForm from "@/components/ContactForm";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { supabase, type Course } from '@/lib/supabase';
 
@@ -19,6 +17,44 @@ const features = [
   "Practice tests and assessments",
   "Study material and resources",
   "Flexible scheduling options"
+];
+
+const collegePlans = [
+  {
+    name: "Basic Plan",
+    price: 999,
+    features: [
+      "Basic student profiling",
+      "Course recommendations",
+      "Basic analytics dashboard",
+      "Email support"
+    ]
+  },
+  {
+    name: "Premium Plan",
+    price: 2999,
+    features: [
+      "Advanced student profiling",
+      "Personalized course recommendations",
+      "Advanced analytics dashboard",
+      "Priority support",
+      "Performance tracking",
+      "Regular reports"
+    ]
+  },
+  {
+    name: "Enterprise Plan",
+    price: 4999,
+    features: [
+      "Complete student profiling",
+      "AI-powered recommendations",
+      "Real-time analytics",
+      "24/7 dedicated support",
+      "Custom reporting",
+      "API access",
+      "White-label options"
+    ]
+  }
 ];
 
 export default function EducationCoaching() {
@@ -55,8 +91,6 @@ export default function EducationCoaching() {
 
   return (
     <main className="min-h-screen bg-background">
-      <Header />
-      
       {/* Hero Section */}
       <section className="relative h-[400px] flex items-center justify-center bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="container px-4 text-center">
@@ -125,8 +159,7 @@ export default function EducationCoaching() {
                     <CardDescription>Starts: {new Date(course.start_date).toLocaleDateString()}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg font-semibold mb-4">₹{course.fees.toLocaleString()}</p>
-                    <Button 
+                    <p className="text-lg font-semibold mb-4">₹{course.fees.toLocaleString()}</p> <boltAction type="file" filePath="app/services/education-coaching/page.tsx">                    <Button 
                       onClick={() => handleContactClick(course)}
                       className="w-full"
                     >
@@ -136,6 +169,36 @@ export default function EducationCoaching() {
                 </Card>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* College Plans Section */}
+      <section className="py-20">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">College Partnership Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {collegePlans.map((plan) => (
+              <Card key={plan.name} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle>{plan.name}</CardTitle>
+                  <CardDescription>
+                    <span className="text-2xl font-bold">₹{plan.price}</span>/month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className="w-full mt-6">Get Started</Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -151,7 +214,6 @@ export default function EducationCoaching() {
       </section>
 
       <WhatsAppButton />
-      <Footer />
     </main>
   );
 }

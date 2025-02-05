@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, BookOpen, PiggyBank, ArrowRight } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import FAQ from "@/components/FAQ";
 import Logo from "@/app/public/images/logo.png";
 import { Yatra_One } from "next/font/google";
+
 const yatra = Yatra_One({
   weight: ['400'],
   subsets: ['latin', 'devanagari'],
@@ -41,8 +41,6 @@ const services = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <Header />
-      
       {/* Hero Section */}
       <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20">
         <div className="container px-4 text-center">
@@ -56,7 +54,7 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
             Where Wisdom Meets Opportunity
           </h1>
-          <p className={`${yatra.className}`+' text-3xl md:text-4xl mb-8 text-muted-foreground'}>
+          <p className={`${yatra.className} text-3xl md:text-4xl mb-8 text-muted-foreground`}>
             श्रद्धावान् लभते ज्ञानम् 
             <span className="block text-lg mt-2">Knowledge Comes to Those Who Seek with Faith</span>
           </p>
@@ -69,7 +67,9 @@ export default function Home() {
       {/* Services Section */}
       <section className="py-20 bg-secondary/5">
         <div className="container px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">Our Services</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+            Our Services
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {services.map((service) => {
               const Icon = service.icon;
@@ -94,10 +94,15 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <FAQ />
+
       {/* Contact Form Section */}
       <section className="py-20">
         <div className="container px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">Contact Us</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+            Contact Us
+          </h2>
           <div className="max-w-2xl mx-auto">
             <ContactForm services={services.map(s => ({ title: s.title }))} />
           </div>
@@ -105,7 +110,6 @@ export default function Home() {
       </section>
 
       <WhatsAppButton />
-      <Footer />
     </main>
   );
 }
