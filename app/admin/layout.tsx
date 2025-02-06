@@ -22,13 +22,14 @@ export default function AdminLayout({
         return;
       }
 
-      const { data: adminUser } = await supabase
+      const { data: adminUser, error } = await supabase
         .from("admin_users")
-        .select()
-        .eq("id", session.user.id)
+        .select("*")
+        .eq("email", session.user.email)
         .single();
 
-      if (!adminUser) {
+      if (error || !adminUser) {
+        console.error("Not an admin user:", error);
         router.push("/");
         return;
       }
