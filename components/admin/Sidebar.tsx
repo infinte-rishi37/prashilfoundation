@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Mail,
   Users,
+  FileText,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -15,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Applications", href: "/admin/applications", icon: FileText },
   { name: "Messages", href: "/admin/messages", icon: Mail },
   { name: "Users", href: "/admin/users", icon: Users },
 ];

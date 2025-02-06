@@ -35,30 +35,32 @@ export default function SignInPage() {
   const onSubmit = async (data: SignInForm) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
 
-      // Check if user is admin
-      const { data: adminUser } = await supabase
-        .from("admin_users")
-        .select()
-        .eq("email", data.email)
-        .single();
+      if (authData.user) {
+        // Check if user is admin
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("*")
+          .eq("email", data.email)
+          .single();
 
-      if (adminUser) {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
+        if (adminUser) {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
+
+        toast({
+          title: "Success!",
+          description: "You have been signed in.",
+        });
       }
-
-      toast({
-        title: "Success!",
-        description: "You have been signed in.",
-      });
     } catch (error: any) {
       toast({
         title: "Error",
