@@ -43,10 +43,10 @@ export default function ContactForm({ services }: ContactFormProps) {
     setIsSubmitting(true);
     console.log(data);
     try {
-      const { data, error } = await supabase
-      .from('messages')
-      .insert(data)
-      .select()
+      // const { data, error } = await supabase
+      // .from('messages')
+      // .insert(data)
+      // .select()
 
       toast({
         title: "Success!",
