@@ -89,7 +89,7 @@ export default function PrashilFinancePage() {
   }, []);
 
   const handleContactClick = (service: FinanceService) => {
-    const phoneNumber = service.type === 'Domestic' ? '911234567890' : '917061214923';
+    const phoneNumber = service.type === 'Domestic' ? '917621071739' : '917061214923';
     const message = encodeURIComponent(
       `Hi, I am interested in the ${service.name} loan service. Could you please provide more information?`
     );

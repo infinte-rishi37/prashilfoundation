@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, BookOpen, PiggyBank, ArrowRight, Users, Trophy, Star } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import FAQ from "@/components/FAQ";
 import { Yatra_One } from "next/font/google";
 
@@ -84,7 +83,7 @@ export default function Home() {
             style={{objectFit: 'cover'}}
             className="mx-auto mb-8"
           />
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
             Where Wisdom Meets Opportunity
           </h1>
           <p className={`${yatra.className} text-3xl md:text-4xl mb-8 text-muted-foreground`}>
@@ -205,7 +204,6 @@ export default function Home() {
         </div>
       </section>
 
-      <WhatsAppButton />
     </main>
   );
 }

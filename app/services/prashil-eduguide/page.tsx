@@ -69,7 +69,7 @@ export default function PrashilEduGuidePage() {
   }, []);
 
   const handleContactClick = (service: EduGuideService) => {
-    const phoneNumber = service.location === 'ABROAD' ? '917061214923' : '911234567890';
+    const phoneNumber = service.location === 'ABROAD' ? '917061214923' : '917621071739';
     const message = encodeURIComponent(
       `Hi, I am interested in the ${service.name} service. Could you please provide more information?`
     );

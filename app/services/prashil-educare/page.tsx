@@ -76,7 +76,7 @@ export default function PrashilEducarePage() {
   }, []);
 
   const handleContactClick = (course: Course) => {
-    const phoneNumber = course.type === 'Domestic' ? '911234567890' : '917061214923';
+    const phoneNumber = course.type === 'Domestic' ? '917621071739' : '917061214923';
     const message = encodeURIComponent(
       `Hi, I am interested in the course ${course.name} which is ${course.type}. Could you please provide more information?`
     );

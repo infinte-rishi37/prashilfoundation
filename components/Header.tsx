@@ -50,9 +50,9 @@ export default function Header() {
               <Image
                 src={logo}
                 alt="Prashil Foundation Logo"
-                width={50}
-                height={50}
-                className="h-12 w-auto"
+                width={75}
+                height={75}
+                className="h-20 w-auto"
               />
               <span className="text-xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                 Prashil Foundation
@@ -101,9 +101,9 @@ export default function Header() {
                 <Image
                   src={logo}
                   alt="Prashil Foundation Logo"
-                  width={40}
-                  height={40}
-                  className="h-10 w-auto"
+                  width={60}
+                  height={60}
+                  className="h-16 w-auto"
                 />
                 <span className="text-lg font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                   Prashil Foundation

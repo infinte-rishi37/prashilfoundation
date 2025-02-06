@@ -15,7 +15,7 @@ export default function WhatsAppButton() {
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClick = (type: 'Domestic' | 'Abroad') => {
-    const phoneNumber = type === 'Domestic' ? '911234567890' : '917061214923';
+    const phoneNumber = type === 'Domestic' ? '917621071739' : '917061214923';
     window.open(`https://wa.me/${phoneNumber}`, '_blank');
   };
 
