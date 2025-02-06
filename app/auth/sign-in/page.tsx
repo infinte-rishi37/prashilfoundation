@@ -47,6 +47,8 @@ export default function SignInPage() {
         description: "You have been signed in.",
       });
 
+      router.refresh();
+
       router.push("/dashboard");
     } catch (error) {
       toast({

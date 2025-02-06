@@ -14,8 +14,8 @@ export default function Header() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      // setUser(session?.user || null);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session: any) => {
+      setUser(session?.user || null);
     });
 
     return () => {
@@ -30,11 +30,15 @@ export default function Header() {
 
   const menuItems = [
     { label: "Home", href: "/" },
+    { label: "About Us", href: "/about" },
     { label: "Education Coaching", href: "/services/education-coaching" },
     { label: "Education Counselling", href: "/services/education-counselling" },
     { label: "Loan Consultancy", href: "/services/loan-consultancy" },
-    { label: "Courses", href: "/courses" },
   ];
+
+  if (user) {
+    menuItems.push({ label: "Dashboard", href: "/dashboard"});
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">

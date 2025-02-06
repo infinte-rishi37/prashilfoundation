@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <div className="flex-1 mt-20">
           {children}
         </div>
+        <WhatsAppButton />
         <Footer />
         <Toaster />
       </body>

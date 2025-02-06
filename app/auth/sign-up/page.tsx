@@ -62,11 +62,26 @@ export default function SignUpPage() {
       
       router.push("/auth/sign-in");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      console.log(error);
+      const err = error as { message: string };
+      if (err.message) {
+        var text = err.message.charAt(0).toUpperCase() + err.message.slice(1).toLowerCase();
+        if (text.includes("Duplicate")) {
+          text = "Email already registered with us.";
+        } else if (text.includes("table")) {
+          text = "Can not access Database at the moment";
+        }
+        toast({
+          title: "Error",
+          description: text,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success!",
+          description: "A Verification Mail has been sent to your email address. Please check your inbox.",
+        });
+      }
     }
     setIsLoading(false);
   };
