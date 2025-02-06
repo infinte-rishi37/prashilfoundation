@@ -5,7 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  preload: true,
+  display: 'swap',
+  fallback: ['system-ui', 'sans-serif']
+});
 
 export const metadata: Metadata = {
   title: 'Prashil Foundation - Education & Financial Services',

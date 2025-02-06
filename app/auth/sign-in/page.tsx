@@ -35,23 +35,19 @@ export default function SignInPage() {
   const onSubmit = async (data: SignInForm) => {
     setIsLoading(true);
     try {
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (signInError) throw signInError;
-      console.log(signInError);
+      if (error) throw error;
+
       // Check if user is admin
-      const { data: adminUser, error: adminError } = await supabase
+      const { data: adminUser } = await supabase
         .from("admin_users")
-        .select("*")
+        .select()
         .eq("email", data.email)
         .single();
-
-      if (adminError && adminError.code !== 'PGRST116') {
-        console.error("Error checking admin status:", adminError);
-      }
 
       if (adminUser) {
         router.push("/admin");
