@@ -32,9 +32,9 @@ export default function Header() {
   const menuItems = [
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
-    { label: "Education Coaching", href: "/services/education-coaching" },
-    { label: "Education Counselling", href: "/services/education-counselling" },
-    { label: "Loan Consultancy", href: "/services/loan-consultancy" },
+    { label: "Prashil Educare", href: "/services/prashil-educare" },
+    { label: "Prashil EduGuide", href: "/services/prashil-eduguide" },
+    { label: "Prashil Finance", href: "/services/prashil-finance" },
   ];
 
   if (user) {

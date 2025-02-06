@@ -20,25 +20,25 @@ const yatra = Yatra_One({
 
 const services = [
   {
-    title: "Education Coaching",
+    title: "Prashil Educare",
     description: "Expert guidance for academic excellence and skill development",
     icon: GraduationCap,
-    email: "coaching@prashilfoundation.com",
-    href: "/services/education-coaching"
+    email: "educare@prashilfoundation.com",
+    href: "/services/prashil-educare"
   },
   {
-    title: "Education Counselling",
+    title: "Prashil EduGuide",
     description: "Professional counselling for career path and academic decisions",
     icon: BookOpen,
-    email: "counselling@prashilfoundation.com",
-    href: "/services/education-counselling"
+    email: "eduguide@prashilfoundation.com",
+    href: "/services/prashil-eduguide"
   },
   {
-    title: "Loan Consultancy",
+    title: "Prashil Finance",
     description: "Comprehensive financial guidance for education loans",
     icon: PiggyBank,
-    email: "loans@prashilfoundation.com",
-    href: "/services/loan-consultancy"
+    email: "finance@prashilfoundation.com",
+    href: "/services/prashil-finance"
   }
 ] as const;
 
@@ -88,8 +88,7 @@ export default function Home() {
             Where Wisdom Meets Opportunity
           </h1>
           <p className={`${yatra.className} text-3xl md:text-4xl mb-8 text-muted-foreground`}>
-            श्रद्धावान् लभते ज्ञानम् 
-            <span className="block text-lg mt-2">Knowledge Comes to Those Who Seek with Faith</span>
+            श्रद्धावान् लभते ज्ञानम्
           </p>
           <Button size="lg" className="mr-4 bg-primary text-primary-foreground hover:bg-primary/90">
             Get Started <ArrowRight className="ml-2 h-4 w-4" />

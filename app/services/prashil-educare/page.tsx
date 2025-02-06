@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { GraduationCap, CheckCircle, ArrowRight, Star } from "lucide-react";
+import { GraduationCap, CheckCircle, ArrowRight, Star, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase, type Course } from '@/lib/supabase';
@@ -69,7 +69,7 @@ export default function PrashilEducarePage() {
         return;
       }
 
-      setCourses(data);
+      setCourses(data || []);
     };
 
     fetchData();
@@ -180,11 +180,17 @@ export default function PrashilEducarePage() {
                       <Button 
                         onClick={() => handleContactClick(course)}
                         variant="outline"
+                        className="flex items-center justify-center gap-2"
                       >
-                        Contact via WhatsApp
+                        <MessageCircle className="h-4 w-4" />
+                        Chat on WhatsApp
                       </Button>
                       {user && (
-                        <Button onClick={() => handleApply(course.id)}>
+                        <Button 
+                          onClick={() => handleApply(course.id)}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <ArrowRight className="h-4 w-4" />
                           Apply Now
                         </Button>
                       )}
@@ -215,11 +221,17 @@ export default function PrashilEducarePage() {
                       <Button 
                         onClick={() => handleContactClick(course)}
                         variant="outline"
+                        className="flex items-center justify-center gap-2"
                       >
-                        Contact via WhatsApp
+                        <MessageCircle className="h-4 w-4" />
+                        Chat on WhatsApp
                       </Button>
                       {user && (
-                        <Button onClick={() => handleApply(course.id)}>
+                        <Button 
+                          onClick={() => handleApply(course.id)}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <ArrowRight className="h-4 w-4" />
                           Apply Now
                         </Button>
                       )}

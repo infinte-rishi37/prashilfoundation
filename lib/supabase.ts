@@ -23,6 +23,7 @@ export type Course = {
   name: string;
   fees: number;
   type: 'Domestic' | 'Abroad';
+  mode: 'Online' | 'Offline';
   start_date: string;
   created_at: string;
   updated_at: string;

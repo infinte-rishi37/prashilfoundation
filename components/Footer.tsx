@@ -16,17 +16,17 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <a href="#" className="text-border hover:text-primary">
-                  Education Coaching
+                  Prashil Educare
                 </a>
               </li>
               <li>
                 <a href="#" className="text-border hover:text-primary">
-                  Education Counselling
+                  Prashil EduGuide
                 </a>
               </li>
               <li>
                 <a href="#" className="text-border hover:text-primary">
-                  Loan Consultancy
+                  Prashil Finance
                 </a>
               </li>
             </ul>
@@ -34,9 +34,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4">Contact</h4>
             <ul className="space-y-2 text-border">
-              <li>coaching@prashilfoundation.com</li>
-              <li>counselling@prashilfoundation.com</li>
-              <li>loans@prashilfoundation.com</li>
+              <li>educare@prashilfoundation.com</li>
+              <li>eduguide@prashilfoundation.com</li>
+              <li>finance@prashilfoundation.com</li>
             </ul>
           </div>
           <div>

@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, CheckCircle, ArrowRight, Star } from "lucide-react";
+import { BookOpen, CheckCircle, ArrowRight, Star, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import Image from "next/image";
 
 type EduGuideService = {
   id: string;
@@ -23,6 +17,30 @@ type EduGuideService = {
   min_students?: number;
   location?: string;
 };
+
+const testimonials = [
+  {
+    name: "Sneha Reddy",
+    outcome: "Admitted to Stanford University",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+    quote: "The counsellors helped me understand my strengths and guided me towards the perfect course. Their support during the application process was invaluable.",
+    rating: 5
+  },
+  {
+    name: "Arjun Mehta",
+    outcome: "Secured Full Scholarship",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+    quote: "Thanks to their guidance, I not only got into my dream university but also secured a full scholarship. The counsellors know exactly what universities look for.",
+    rating: 5
+  },
+  {
+    name: "Zara Khan",
+    outcome: "Career Transition Success",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+    quote: "The career counselling sessions helped me make an informed decision about my career switch. Their industry insights were eye-opening.",
+    rating: 5
+  }
+];
 
 export default function PrashilEduGuidePage() {
   const [services, setServices] = useState<EduGuideService[]>([]);
@@ -49,6 +67,14 @@ export default function PrashilEduGuidePage() {
 
     fetchData();
   }, []);
+
+  const handleContactClick = (service: EduGuideService) => {
+    const phoneNumber = service.location === 'ABROAD' ? '917061214923' : '911234567890';
+    const message = encodeURIComponent(
+      `Hi, I am interested in the ${service.name} service. Could you please provide more information?`
+    );
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  };
 
   const handleApply = async (serviceId: string) => {
     if (!user) {
@@ -108,14 +134,25 @@ export default function PrashilEduGuidePage() {
                       Minimum {service.min_students} students required
                     </p>
                   )}
-                  {user && (
+                  <div className="flex flex-col space-y-2">
                     <Button 
-                      onClick={() => handleApply(service.id)}
-                      className="w-full"
+                      onClick={() => handleContactClick(service)}
+                      variant="outline"
+                      className="flex items-center justify-center gap-2"
                     >
-                      Apply Now
+                      <MessageCircle className="h-4 w-4" />
+                      Chat on WhatsApp
                     </Button>
-                  )}
+                    {user && (
+                      <Button 
+                        onClick={() => handleApply(service.id)}
+                        className="flex items-center justify-center gap-2"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                        Apply Now
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -141,14 +178,56 @@ export default function PrashilEduGuidePage() {
                       Location: {service.location}
                     </p>
                   )}
-                  {user && (
+                  <div className="flex flex-col space-y-2">
                     <Button 
-                      onClick={() => handleApply(service.id)}
-                      className="w-full"
+                      onClick={() => handleContactClick(service)}
+                      variant="outline"
+                      className="flex items-center justify-center gap-2"
                     >
-                      Apply Now
+                      <MessageCircle className="h-4 w-4" />
+                      Chat on WhatsApp
                     </Button>
-                  )}
+                    {user && (
+                      <Button 
+                        onClick={() => handleApply(service.id)}
+                        className="flex items-center justify-center gap-2"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                        Apply Now
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Success Stories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.name} className="text-center">
+                <CardContent className="pt-6">
+                  <div className="relative w-24 h-24 mx-auto mb-4">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      fill
+                      className="rounded-full object-cover"
+                    />
+                  </div>
+                  <div className="flex justify-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-primary fill-primary" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mb-4">"{testimonial.quote}"</p>
+                  <p className="font-bold">{testimonial.name}</p>
+                  <p className="text-sm text-primary">{testimonial.outcome}</p>
                 </CardContent>
               </Card>
             ))}

@@ -10,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -19,6 +21,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Application = {
   id: string;
@@ -28,6 +41,7 @@ type Application = {
   course: {
     name: string;
     type: string;
+    mode: string;
   };
 };
 
@@ -37,6 +51,7 @@ type Course = {
   type: string;
   fees: number;
   start_date: string;
+  mode: string;
 };
 
 export default function ApplicationsPage() {
@@ -55,7 +70,7 @@ export default function ApplicationsPage() {
           .from("applications")
           .select(`
             *,
-            course:courses(name, type)
+            course:courses(name, type, mode)
           `)
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
@@ -115,7 +130,7 @@ export default function ApplicationsPage() {
       .from("applications")
       .select(`
         *,
-        course:courses(name, type)
+        course:courses(name, type, mode)
       `)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
@@ -123,6 +138,29 @@ export default function ApplicationsPage() {
     if (data) {
       setApplications(data);
     }
+  };
+
+  const handleDelete = async (applicationId: string) => {
+    const { error } = await supabase
+      .from("applications")
+      .delete()
+      .eq("id", applicationId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete application. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Application deleted successfully."
+    });
+
+    setApplications(applications.filter(app => app.id !== applicationId));
   };
 
   return (
@@ -145,7 +183,7 @@ export default function ApplicationsPage() {
                 <SelectContent>
                   {courses.map((course) => (
                     <SelectItem key={course.id} value={course.id}>
-                      {course.name} ({course.type})
+                      {course.name} ({course.type} - {course.mode})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -169,7 +207,7 @@ export default function ApplicationsPage() {
               <div>
                 <CardTitle>{application.course.name}</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {application.course.type}
+                  {application.course.type} - {application.course.mode}
                 </p>
               </div>
               <div className="flex items-center space-x-4">
@@ -182,7 +220,25 @@ export default function ApplicationsPage() {
                 }`}>
                   {application.status.replace("_", " ").toUpperCase()}
                 </span>
-                <Button variant="outline" size="sm">View Details</Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">Delete</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your application.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(application.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardHeader>
             <CardContent>
