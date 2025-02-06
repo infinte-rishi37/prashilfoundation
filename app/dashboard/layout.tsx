@@ -29,14 +29,14 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-5rem)] items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)]">
+    <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-background">
         <div className="max-w-7xl mx-auto">
