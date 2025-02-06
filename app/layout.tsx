@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   keywords: 'education coaching, education counselling, loan consultancy, Prashil Foundation',
 };
 
+const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
+
 export default function RootLayout({
   children,
 }: {

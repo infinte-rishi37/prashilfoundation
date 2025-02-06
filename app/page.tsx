@@ -6,8 +6,9 @@ import { GraduationCap, BookOpen, PiggyBank, ArrowRight, Users, Trophy, Star } f
 import ContactForm from "@/components/ContactForm";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import FAQ from "@/components/FAQ";
-import Logo from "@/app/public/images/logo.png";
 import { Yatra_One } from "next/font/google";
+
+const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 
 const yatra = Yatra_One({
   weight: ['400'],
@@ -73,13 +74,14 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20 py-20">
-        <div className="container px-4 text-center">
+      <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20 py-9">
+        <div className="container text-center">
           <Image
-            src={Logo}
+            src={logo}
             alt="Prashil Foundation Logo"
-            width={150}
-            height={150}
+            width={250}
+            height={250}
+            style={{objectFit: 'cover'}}
             className="mx-auto mb-8"
           />
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">

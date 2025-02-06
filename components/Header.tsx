@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import Logo from "@/app/public/images/logo.png";
+
+const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +48,7 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
-                src={Logo}
+                src={logo}
                 alt="Prashil Foundation Logo"
                 width={50}
                 height={50}
@@ -98,7 +99,7 @@ export default function Header() {
             <SheetContent>
               <div className="flex items-center mb-8">
                 <Image
-                  src={Logo}
+                  src={logo}
                   alt="Prashil Foundation Logo"
                   width={40}
                   height={40}

@@ -14,6 +14,7 @@ type Message = {
   token: string;
   admin_response: string | null;
   created_at: string;
+  responded_at: string | null;
   user: {
     email: string;
     username: string;
@@ -52,7 +53,10 @@ export default function AdminMessagesPage() {
 
     const { error } = await supabase
       .from("messages")
-      .update({ admin_response: response })
+      .update({ 
+        admin_response: response,
+        responded_at: new Date().toISOString()
+      })
       .eq("id", messageId);
 
     if (error) {
@@ -70,7 +74,11 @@ export default function AdminMessagesPage() {
     });
 
     setMessages(messages.map(msg => 
-      msg.id === messageId ? { ...msg, admin_response: response } : msg
+      msg.id === messageId ? { 
+        ...msg, 
+        admin_response: response,
+        responded_at: new Date().toISOString()
+      } : msg
     ));
     setResponses({ ...responses, [messageId]: "" });
   };
@@ -108,6 +116,11 @@ export default function AdminMessagesPage() {
                   <div className="bg-primary/5 p-4 rounded-lg">
                     <p className="font-semibold mb-2">Your Response:</p>
                     <p>{message.admin_response}</p>
+                    {message.responded_at && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Responded on {new Date(message.responded_at).toLocaleDateString()}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2">
