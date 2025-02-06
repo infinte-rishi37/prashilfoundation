@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -41,13 +40,9 @@ export default function ContactForm({ services }: ContactFormProps) {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    console.log(data);
     try {
-      // const { data, error } = await supabase
-      // .from('messages')
-      // .insert(data)
-      // .select()
-
+      // TODO: Implement form submission
+      console.log(data);
       toast({
         title: "Success!",
         description: "Your message has been sent. We'll get back to you soon.",
