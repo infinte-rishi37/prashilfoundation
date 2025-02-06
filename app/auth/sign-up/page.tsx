@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle2 } from "lucide-react";
 
 const signUpSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -22,8 +23,8 @@ type SignUpForm = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const { toast } = useToast();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     register,
@@ -55,36 +56,31 @@ export default function SignUpPage() {
         if (profileError) throw profileError;
       }
 
+      setIsSuccess(true);
+    } catch (error: any) {
       toast({
-        title: "Success!",
-        description: "Your account has been created. Please sign in.",
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
       });
-      
-      router.push("/auth/sign-in");
-    } catch (error) {
-      console.log(error);
-      const err = error as { message: string };
-      if (err.message) {
-        var text = err.message.charAt(0).toUpperCase() + err.message.slice(1).toLowerCase();
-        if (text.includes("Duplicate")) {
-          text = "Email already registered with us.";
-        } else if (text.includes("table")) {
-          text = "Can not access Database at the moment";
-        }
-        toast({
-          title: "Error",
-          description: text,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success!",
-          description: "A Verification Mail has been sent to your email address. Please check your inbox.",
-        });
-      }
     }
     setIsLoading(false);
   };
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md">
+          <Alert className="bg-primary/10 border-primary text-primary">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription>
+              Please check your email to verify your account. Once verified, you can sign in.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center bg-background px-4">
@@ -146,4 +142,3 @@ export default function SignUpPage() {
       </div>
     </div>
   );
-}

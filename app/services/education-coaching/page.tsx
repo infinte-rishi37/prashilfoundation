@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactForm from "@/components/ContactForm";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { supabase, type Course } from '@/lib/supabase';
 
 const services = [{ title: "Education Coaching" }];
@@ -195,10 +196,8 @@ export default function EducationCoaching() {
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-                <CardFooter>
                   <Button className="w-full mt-6">Get Started</Button>
-                </CardFooter>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -214,6 +213,8 @@ export default function EducationCoaching() {
           </div>
         </div>
       </section>
+
+      <WhatsAppButton />
     </main>
   );
 }

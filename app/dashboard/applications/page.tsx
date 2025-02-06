@@ -4,6 +4,21 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 type Application = {
   id: string;
@@ -16,39 +31,135 @@ type Application = {
   };
 };
 
+type Course = {
+  id: string;
+  name: string;
+  type: string;
+  fees: number;
+  start_date: string;
+};
+
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from("applications")
-        .select(`
-          *,
-          course:courses(name, type)
-        `)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const [applicationsResponse, coursesResponse] = await Promise.all([
+        supabase
+          .from("applications")
+          .select(`
+            *,
+            course:courses(name, type)
+          `)
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("courses")
+          .select("*")
+          .order("name", { ascending: true })
+      ]);
 
-      if (error) {
-        console.error("Error fetching applications:", error);
+      if (applicationsResponse.error) {
+        console.error("Error fetching applications:", applicationsResponse.error);
         return;
       }
 
-      setApplications(data || []);
+      if (coursesResponse.error) {
+        console.error("Error fetching courses:", coursesResponse.error);
+        return;
+      }
+
+      setApplications(applicationsResponse.data || []);
+      setCourses(coursesResponse.data || []);
     };
 
-    fetchApplications();
+    fetchData();
   }, []);
+
+  const handleNewApplication = async () => {
+    if (!selectedCourse) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("applications")
+      .insert({
+        user_id: user.id,
+        course_id: selectedCourse,
+        status: "pending"
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create application. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Application submitted successfully."
+    });
+
+    // Refresh applications
+    const { data } = await supabase
+      .from("applications")
+      .select(`
+        *,
+        course:courses(name, type)
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      setApplications(data);
+    }
+  };
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Applications</h1>
-        <Button>New Application</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>New Application</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Application</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <Select onValueChange={setSelectedCourse}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map((course) => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.name} ({course.type})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                className="w-full" 
+                onClick={handleNewApplication}
+                disabled={!selectedCourse}
+              >
+                Submit Application
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-6">
@@ -92,4 +203,3 @@ export default function ApplicationsPage() {
       </div>
     </div>
   );
-}

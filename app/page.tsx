@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-11 flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20">
+      <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20">
         <div className="container px-4 text-center">
           <Image
             src={Logo}
@@ -108,6 +108,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <WhatsAppButton />
     </main>
   );
 }

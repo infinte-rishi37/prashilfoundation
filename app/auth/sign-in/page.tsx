@@ -42,18 +42,27 @@ export default function SignInPage() {
 
       if (error) throw error;
 
+      // Check if user is admin
+      const { data: adminUser } = await supabase
+        .from("admin_users")
+        .select()
+        .eq("email", data.email)
+        .single();
+
+      if (adminUser) {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+
       toast({
         title: "Success!",
         description: "You have been signed in.",
       });
-
-      router.refresh();
-
-      router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Invalid email or password.",
+        description: error.message || "Invalid email or password.",
         variant: "destructive",
       });
     }
@@ -93,6 +102,12 @@ export default function SignInPage() {
                 )}
               </div>
 
+              <div className="text-right">
+                <Link href="/auth/reset-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
@@ -109,4 +124,3 @@ export default function SignInPage() {
       </div>
     </div>
   );
-}

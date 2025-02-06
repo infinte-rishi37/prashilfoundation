@@ -9,8 +9,11 @@ type Message = {
   id: string;
   subject: string;
   content: string;
+  token: string;
+  admin_response: string | null;
   is_read: boolean;
   created_at: string;
+  responded_at: string | null;
 };
 
 export default function MessagesPage() {
@@ -65,6 +68,9 @@ export default function MessagesPage() {
               <div>
                 <CardTitle>{message.subject}</CardTitle>
                 <p className="text-sm text-muted-foreground">
+                  Token: {message.token}
+                </p>
+                <p className="text-sm text-muted-foreground">
                   {new Date(message.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -79,7 +85,23 @@ export default function MessagesPage() {
               )}
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{message.content}</p>
+              <div className="space-y-4">
+                <div className="bg-secondary/5 p-4 rounded-lg">
+                  <p className="text-foreground">{message.content}</p>
+                </div>
+
+                {message.admin_response && (
+                  <div className="bg-primary/5 p-4 rounded-lg">
+                    <p className="font-semibold mb-2">Response:</p>
+                    <p>{message.admin_response}</p>
+                    {message.responded_at && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Responded on {new Date(message.responded_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -94,4 +116,3 @@ export default function MessagesPage() {
       </div>
     </div>
   );
-}

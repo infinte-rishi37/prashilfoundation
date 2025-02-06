@@ -19,6 +19,7 @@ const features = [
 export default function LoanConsultancy() {
   return (
     <main className="min-h-screen bg-background">
+      <Header />
       
       {/* Hero Section */}
       <section className="relative h-[400px] flex items-center justify-center bg-gradient-to-r from-primary/10 to-primary/5">
@@ -63,6 +64,8 @@ export default function LoanConsultancy() {
         </div>
       </section>
 
+      <WhatsAppButton />
+      <Footer />
     </main>
   );
 }

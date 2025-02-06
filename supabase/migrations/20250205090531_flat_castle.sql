@@ -60,19 +60,6 @@ CREATE POLICY "Anyone can read courses"
   TO anon, authenticated
   USING (true);
 
--- Allow anyone to sign up (insert into users)
-CREATE POLICY "Allow public sign-up"
-ON users
-FOR INSERT
-TO anon
-WITH CHECK (true);
-
-CREATE POLICY "Allow users to insert their own record"
-ON users
-FOR INSERT
-TO anon
-WITH CHECK (id = auth.uid());
-
 -- Create function to handle updated_at
 CREATE OR REPLACE FUNCTION handle_updated_at()
 RETURNS TRIGGER AS $$
