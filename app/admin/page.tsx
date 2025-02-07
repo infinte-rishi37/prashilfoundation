@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
-import { Mail, Users, Clock, GraduationCap, BookOpen, PiggyBank, CheckCircle } from "lucide-react";
+import { Mail, Users, Clock, GraduationCap, BookOpen, PiggyBank, CheckCircle, Bell } from "lucide-react";
 
 type DashboardStats = {
   totalMessages: number;
@@ -11,18 +11,14 @@ type DashboardStats = {
   totalUsers: number;
   recentMessages: number;
   pendingApplications: number;
+  newApplications: number;
+  newRegistrations: number;
   totalEnrollments: {
     educare: number;
     eduguide: number;
     finance: number;
   };
   successfulEnrollments: number;
-};
-
-type RecentUser = {
-  username: string;
-  email: string;
-  created_at: string;
 };
 
 export default function AdminDashboardPage() {
@@ -32,6 +28,8 @@ export default function AdminDashboardPage() {
     totalUsers: 0,
     recentMessages: 0,
     pendingApplications: 0,
+    newApplications: 0,
+    newRegistrations: 0,
     totalEnrollments: {
       educare: 0,
       eduguide: 0,
@@ -39,7 +37,6 @@ export default function AdminDashboardPage() {
     },
     successfulEnrollments: 0
   });
-  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -49,11 +46,12 @@ export default function AdminDashboardPage() {
         recentMessages,
         unrespondedMessages,
         pendingApplications,
+        newApplications,
+        newRegistrations,
         educareEnrollments,
         eduguideEnrollments,
         financeEnrollments,
-        successfulEnrollments,
-        latestUsers
+        successfulEnrollments
       ] = await Promise.all([
         supabase.from("messages").select("*", { count: "exact" }),
         supabase.from("users").select("*", { count: "exact" }),
@@ -72,6 +70,14 @@ export default function AdminDashboardPage() {
         supabase
           .from("applications")
           .select("*", { count: "exact" })
+          .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
+        supabase
+          .from("users")
+          .select("*", { count: "exact" })
+          .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
+        supabase
+          .from("applications")
+          .select("*", { count: "exact" })
           .eq("service_type", "educare"),
         supabase
           .from("applications")
@@ -84,12 +90,7 @@ export default function AdminDashboardPage() {
         supabase
           .from("applications")
           .select("*", { count: "exact" })
-          .eq("status", "approved"),
-        supabase
-          .from("users")
-          .select("username, email, created_at")
-          .order("created_at", { ascending: false })
-          .limit(5)
+          .eq("status", "approved")
       ]);
 
       setStats({
@@ -98,6 +99,8 @@ export default function AdminDashboardPage() {
         totalUsers: users.count || 0,
         recentMessages: recentMessages.count || 0,
         pendingApplications: pendingApplications.count || 0,
+        newApplications: newApplications.count || 0,
+        newRegistrations: newRegistrations.count || 0,
         totalEnrollments: {
           educare: educareEnrollments.count || 0,
           eduguide: eduguideEnrollments.count || 0,
@@ -105,10 +108,6 @@ export default function AdminDashboardPage() {
         },
         successfulEnrollments: successfulEnrollments.count || 0
       });
-
-      if (latestUsers.data) {
-        setRecentUsers(latestUsers.data);
-      }
     };
 
     fetchStats();
@@ -194,24 +193,52 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* Recent Users */}
+      {/* Recent Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Users</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Recent Actions
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentUsers.map((user) => (
-              <div key={user.email} className="flex items-center justify-between border-b pb-4 last:border-0">
-                <div>
-                  <p className="font-medium">{user.username}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
+            {stats.newRegistrations > 0 && (
+              <div className="flex items-center justify-between border-b pb-4">
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">New User Registrations</p>
+                    <p className="text-sm text-muted-foreground">In the last 24 hours</p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(user.created_at).toLocaleDateString()}
-                </p>
+                <span className="text-lg font-bold">{stats.newRegistrations}</span>
               </div>
-            ))}
+            )}
+            {stats.newApplications > 0 && (
+              <div className="flex items-center justify-between border-b pb-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">New Applications</p>
+                    <p className="text-sm text-muted-foreground">In the last 24 hours</p>
+                  </div>
+                </div>
+                <span className="text-lg font-bold">{stats.newApplications}</span>
+              </div>
+            )}
+            {stats.pendingApplications > 0 && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">Total Pending Applications</p>
+                    <p className="text-sm text-muted-foreground">Awaiting review</p>
+                  </div>
+                </div>
+                <span className="text-lg font-bold">{stats.pendingApplications}</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
