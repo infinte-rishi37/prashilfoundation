@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session: any) => {
@@ -41,6 +44,13 @@ export default function Header() {
     menuItems.push({ label: "Dashboard", href: "/dashboard" });
   }
 
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="container mx-auto">
@@ -54,33 +64,38 @@ export default function Header() {
               height={75}
               className="h-16 w-auto"
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
               Prashil Foundation
             </span>
           </Link>
 
           {/* Desktop Menu - Hidden on mobile */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-4">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
+                className={cn(
+                  "text-sm font-medium transition-colors whitespace-nowrap px-3 py-2 rounded-md",
+                  isActive(item.href)
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-primary/5 text-foreground"
+                )}
               >
                 {item.label}
               </Link>
             ))}
             {user ? (
-              <Button onClick={handleSignOut} variant="outline">
+              <Button onClick={handleSignOut} variant="outline" size="sm">
                 Sign Out
               </Button>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
                 <Link href="/auth/sign-in">
-                  <Button variant="outline">Sign In</Button>
+                  <Button variant="outline" size="sm">Sign In</Button>
                 </Link>
                 <Link href="/auth/sign-up">
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90" size="sm">
                     Sign Up
                   </Button>
                 </Link>
@@ -105,32 +120,37 @@ export default function Header() {
                     height={60}
                     className="h-12 w-auto"
                   />
-                  <span className="text-lg font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                  <span className="text-base font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                     Prashil Foundation
                   </span>
                 </div>
-                <nav className="flex flex-col space-y-4">
+                <nav className="flex flex-col space-y-2">
                   {menuItems.map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
-                      className="text-sm font-medium transition-colors hover:text-primary"
+                      className={cn(
+                        "text-sm font-medium transition-colors px-3 py-2 rounded-md",
+                        isActive(item.href)
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-primary/5 text-foreground"
+                      )}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.label}
                     </Link>
                   ))}
                   {user ? (
-                    <Button onClick={handleSignOut} variant="outline">
+                    <Button onClick={handleSignOut} variant="outline" size="sm">
                       Sign Out
                     </Button>
                   ) : (
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2 pt-2">
                       <Link href="/auth/sign-in" onClick={() => setIsOpen(false)}>
-                        <Button variant="outline" className="w-full">Sign In</Button>
+                        <Button variant="outline" className="w-full" size="sm">Sign In</Button>
                       </Link>
                       <Link href="/auth/sign-up" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="sm">
                           Sign Up
                         </Button>
                       </Link>

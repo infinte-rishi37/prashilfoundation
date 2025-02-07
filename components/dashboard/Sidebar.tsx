@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -32,6 +34,8 @@ export function Sidebar() {
     window.location.href = "/";
   };
 
+  const isActive = (href: string) => pathname === href;
+
   const NavContent = () => (
     <>
       {navigation.map((item) => (
@@ -39,19 +43,19 @@ export function Sidebar() {
           key={item.name}
           href={item.href}
           className={cn(
-            pathname === item.href
+            "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+            isActive(item.href)
               ? "bg-primary/10 text-primary"
-              : "text-foreground hover:bg-primary/5",
-            "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+              : "text-foreground hover:bg-primary/5"
           )}
           onClick={() => setIsOpen(false)}
         >
           <item.icon
             className={cn(
-              pathname === item.href
+              "mr-3 h-5 w-5",
+              isActive(item.href)
                 ? "text-primary"
-                : "text-foreground",
-              "mr-3 h-5 w-5"
+                : "text-foreground"
             )}
           />
           {item.name}
@@ -60,57 +64,50 @@ export function Sidebar() {
     </>
   );
 
-  // Mobile view
-  const MobileNav = () => (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild className="md:hidden fixed bottom-4 right-4 z-50">
-        <Button size="icon" className="rounded-full h-12 w-12">
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-64">
-        <div className="flex flex-col h-full">
-          <div className="flex-1 py-4">
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex flex-col w-64 bg-card border-r">
+        <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+          <nav className="mt-5 flex-1 px-2 space-y-1">
             <NavContent />
-          </div>
+          </nav>
+        </div>
+        <div className="flex-shrink-0 flex border-t p-4">
           <Button
             variant="ghost"
-            className="justify-start"
+            className="flex-1 justify-start"
             onClick={handleSignOut}
           >
             <LogOut className="mr-3 h-5 w-5" />
             Sign out
           </Button>
         </div>
-      </SheetContent>
-    </Sheet>
-  );
-
-  // Desktop view
-  const DesktopNav = () => (
-    <div className="hidden md:flex flex-col w-64 bg-card border-r">
-      <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-        <nav className="mt-5 flex-1 px-2 space-y-1">
-          <NavContent />
-        </nav>
       </div>
-      <div className="flex-shrink-0 flex border-t p-4">
-        <Button
-          variant="ghost"
-          className="flex-1 justify-start"
-          onClick={handleSignOut}
-        >
-          <LogOut className="mr-3 h-5 w-5" />
-          Sign out
-        </Button>
-      </div>
-    </div>
-  );
 
-  return (
-    <>
-      <DesktopNav />
-      <MobileNav />
+      {/* Mobile Menu */}
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild className="md:hidden fixed bottom-4 right-4 z-50">
+          <Button size="icon" className="rounded-full h-12 w-12">
+            <Menu className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64">
+          <div className="flex flex-col h-full">
+            <div className="flex-1 py-4">
+              <NavContent />
+            </div>
+            <Button
+              variant="ghost"
+              className="justify-start"
+              onClick={handleSignOut}
+            >
+              <LogOut className="mr-3 h-5 w-5" />
+              Sign out
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
