@@ -1,6 +1,100 @@
 # Database Structure Documentation
 
-[Previous content remains the same until Triggers section...]
+## Table Structures
+
+### finance_services
+- **id** (uuid, PK)
+- **name** (text)
+- **type** (text)
+- **description** (text)
+- **min_amount** (numeric)
+- **max_amount** (numeric)
+- **interest_rate** (numeric)
+- **processing_fee** (numeric)
+- **duration** (text)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### messages
+- **id** (uuid, PK)
+- **user_id** (uuid, FK to users)
+- **token** (text)
+- **subject** (text)
+- **content** (text)
+- **is_read** (boolean)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+- **responded_at** (timestamptz)
+- **admin_response** (text)
+
+### users
+- **id** (uuid, PK)
+- **email** (text, unique)
+- **username** (text, unique)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### admin_users
+- **id** (uuid, PK)
+- **email** (text, unique)
+- **created_at** (timestamptz)
+
+### eduguide_services
+- **id** (uuid, PK)
+- **name** (text)
+- **description** (text)
+- **category** (text)
+- **location** (text)
+- **fee** (numeric)
+- **min_students** (integer)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### courses
+- **id** (uuid, PK)
+- **name** (text)
+- **type** (text)
+- **mode** (text)
+- **fees** (numeric)
+- **start_date** (date)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### college_plans
+- **id** (uuid, PK)
+- **name** (text)
+- **description** (text)
+- **price** (numeric)
+- **features** (ARRAY of text)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+## Indexes
+
+### Primary Key Indexes
+- courses_pkey (courses.id)
+- college_plans_pkey (college_plans.id)
+- messages_pkey (messages.id)
+- users_pkey (users.id)
+- admin_users_pkey (admin_users.id)
+- eduguide_services_pkey (eduguide_services.id)
+- finance_services_pkey (finance_services.id)
+
+### Unique Indexes
+- users_email_key (users.email)
+- users_username_key (users.username)
+- admin_users_email_key (admin_users.email)
+
+## Triggers
+
+### Timestamp Update Triggers
+- courses_updated_at: Updates updated_at on courses
+- messages_updated_at: Updates updated_at on messages
+- college_plans_updated_at: Updates updated_at on college_plans
+- users_updated_at: Updates updated_at on users
+
+### Response Triggers
+- set_responded_at: Updates responded_at when message is responded to
 
 ## Row Level Security (RLS) Policies
 
