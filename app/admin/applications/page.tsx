@@ -4,28 +4,25 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-
-type Application = {
-  id: string;
-  status: string;
-  admin_response: string | null;
-  created_at: string;
-  responded_at: string | null;
-  user: {
-    email: string;
-    username: string;
-  };
-  course: {
-    name: string;
-    type: string;
-  };
-};
+import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [responses, setResponses] = useState<Record<string, string>>({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -34,8 +31,7 @@ export default function AdminApplicationsPage() {
         .from("applications")
         .select(`
           *,
-          user:users(email, username),
-          course:courses(name, type)
+          user:users(email, username)
         `)
         .order("created_at", { ascending: false });
 
@@ -44,7 +40,41 @@ export default function AdminApplicationsPage() {
         return;
       }
 
-      setApplications(data || []);
+      // Fetch service details for each application
+      const applicationsWithServices = await Promise.all(
+        (data || []).map(async (app) => {
+          let serviceData;
+          switch (app.service_type) {
+            case "educare":
+              serviceData = await supabase
+                .from("courses")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+            case "eduguide":
+              serviceData = await supabase
+                .from("eduguide_services")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+            case "finance":
+              serviceData = await supabase
+                .from("finance_services")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+          }
+          return {
+            ...app,
+            service: serviceData?.data || null
+          };
+        })
+      );
+
+      setApplications(applicationsWithServices);
     };
 
     fetchApplications();
@@ -58,7 +88,6 @@ export default function AdminApplicationsPage() {
       .from("applications")
       .update({ 
         admin_response: response,
-        status: 'in_progress'
       })
       .eq("id", applicationId);
 
@@ -80,7 +109,7 @@ export default function AdminApplicationsPage() {
       app.id === applicationId ? { 
         ...app, 
         admin_response: response,
-        status: 'in_progress'
+        responded_at: new Date().toISOString()
       } : app
     ));
     setResponses({ ...responses, [applicationId]: "" });
@@ -111,48 +140,129 @@ export default function AdminApplicationsPage() {
     ));
   };
 
+  const getServiceName = (application: Application) => {
+    if (!application.service) return "Unknown Service";
+    return application.service.name;
+  };
+
+  const getServiceDetails = (application: Application) => {
+    if (!application.service) return null;
+
+    switch (application.service_type) {
+      case "educare":
+        const course = application.service as Course;
+        return `${course.type} - ${course.mode}`;
+      case "eduguide":
+        const eduguide = application.service as EduGuideService;
+        return eduguide.category.replace("_", " ").toUpperCase();
+      case "finance":
+        const finance = application.service as FinanceService;
+        return finance.type;
+      default:
+        return null;
+    }
+  };
+
+  const filteredApplications = applications.filter(app => {
+    const matchesSearch = 
+      app.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getServiceName(app).toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || app.status === statusFilter;
+    const matchesType = typeFilter === "all" || app.service_type === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Applications</h1>
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold">Applications</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by user or service..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="educare">Educare</SelectItem>
+              <SelectItem value="eduguide">EduGuide</SelectItem>
+              <SelectItem value="finance">Finance</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <div className="grid gap-6">
-        {applications.map((application) => (
+        {filteredApplications.map((application) => (
           <Card key={application.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle>{application.course.name}</CardTitle>
+                  <CardTitle>{getServiceName(application)}</CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    From: {application.user.username} ({application.user.email})
+                    From: {application.user?.username} ({application.user?.email})
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Course Type: {application.course.type}
+                    Service Type: {application.service_type.toUpperCase()} - {getServiceDetails(application)}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <select
+                  <Select
                     value={application.status}
-                    onChange={(e) => handleStatusUpdate(application.id, e.target.value)}
-                    className="text-sm border rounded p-1"
+                    onValueChange={(value) => handleStatusUpdate(application.id, value)}
                   >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className={`px-2 py-1 rounded-full text-xs ${
-                    application.status === "completed"
+                    application.status === "approved"
                       ? "bg-green-100 text-green-800"
-                      : application.status === "in_progress"
-                      ? "bg-blue-100 text-blue-800"
+                      : application.status === "rejected"
+                      ? "bg-red-100 text-red-800"
                       : "bg-yellow-100 text-yellow-800"
                   }`}>
-                    {application.status.replace("_", " ").toUpperCase()}
+                    {application.status.toUpperCase()}
                   </span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Applied on {new Date(application.created_at).toLocaleDateString()}
+                </p>
+
                 {application.admin_response ? (
                   <div className="bg-primary/5 p-4 rounded-lg">
                     <p className="font-semibold mb-2">Your Response:</p>
@@ -186,7 +296,7 @@ export default function AdminApplicationsPage() {
           </Card>
         ))}
 
-        {applications.length === 0 && (
+        {filteredApplications.length === 0 && (
           <Card>
             <CardContent className="text-center py-6">
               <p className="text-muted-foreground">No applications found</p>
@@ -196,4 +306,3 @@ export default function AdminApplicationsPage() {
       </div>
     </div>
   );
-}

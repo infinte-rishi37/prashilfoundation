@@ -4,22 +4,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -32,32 +16,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-type Application = {
-  id: string;
-  course_id: string;
-  status: string;
-  created_at: string;
-  course: {
-    name: string;
-    type: string;
-    mode: string;
-  };
-};
-
-type Course = {
-  id: string;
-  name: string;
-  type: string;
-  fees: number;
-  start_date: string;
-  mode: string;
-};
+import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
+import ApplicationsModal from "@/components/ApplicationsModal";
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const [eduguideServices, setEduguideServices] = useState<EduGuideService[]>([]);
+  const [financeServices, setFinanceServices] = useState<FinanceService[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -65,80 +31,78 @@ export default function ApplicationsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const [applicationsResponse, coursesResponse] = await Promise.all([
+      const [
+        applicationsRes,
+        coursesRes,
+        eduguideRes,
+        financeRes
+      ] = await Promise.all([
         supabase
           .from("applications")
-          .select(`
-            *,
-            course:courses(name, type, mode)
-          `)
+          .select("*")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
         supabase
           .from("courses")
           .select("*")
+          .order("name", { ascending: true }),
+        supabase
+          .from("eduguide_services")
+          .select("*")
+          .order("name", { ascending: true }),
+        supabase
+          .from("finance_services")
+          .select("*")
           .order("name", { ascending: true })
       ]);
 
-      if (applicationsResponse.error) {
-        console.error("Error fetching applications:", applicationsResponse.error);
+      if (applicationsRes.error) {
+        console.error("Error fetching applications:", applicationsRes.error);
         return;
       }
 
-      if (coursesResponse.error) {
-        console.error("Error fetching courses:", coursesResponse.error);
-        return;
-      }
+      // Fetch service details for each application
+      const applicationsWithServices = await Promise.all(
+        (applicationsRes.data || []).map(async (app) => {
+          let serviceData;
+          switch (app.service_type) {
+            case "educare":
+              serviceData = await supabase
+                .from("courses")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+            case "eduguide":
+              serviceData = await supabase
+                .from("eduguide_services")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+            case "finance":
+              serviceData = await supabase
+                .from("finance_services")
+                .select("*")
+                .eq("id", app.service_id)
+                .single();
+              break;
+          }
+          return {
+            ...app,
+            service: serviceData?.data || null
+          };
+        })
+      );
 
-      setApplications(applicationsResponse.data || []);
-      setCourses(coursesResponse.data || []);
+      setApplications(applicationsWithServices);
+      setCourses(coursesRes.data || []);
+      setEduguideServices(eduguideRes.data || []);
+      setFinanceServices(financeRes.data || []);
     };
 
     fetchData();
   }, []);
-
-  const handleNewApplication = async () => {
-    if (!selectedCourse) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from("applications")
-      .insert({
-        user_id: user.id,
-        course_id: selectedCourse,
-        status: "pending"
-      });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create application. Please try again.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Application submitted successfully."
-    });
-
-    // Refresh applications
-    const { data } = await supabase
-      .from("applications")
-      .select(`
-        *,
-        course:courses(name, type, mode)
-      `)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (data) {
-      setApplications(data);
-    }
-  };
 
   const handleDelete = async (applicationId: string) => {
     const { error } = await supabase
@@ -163,41 +127,40 @@ export default function ApplicationsPage() {
     setApplications(applications.filter(app => app.id !== applicationId));
   };
 
+  const getServiceName = (application: Application) => {
+    if (!application.service) return "Unknown Service";
+    return application.service.name;
+  };
+
+  const getServiceDetails = (application: Application) => {
+    if (!application.service) return null;
+
+    switch (application.service_type) {
+      case "educare":
+        const course = application.service as Course;
+        return `${course.type} - ${course.mode}`;
+      case "eduguide":
+        const eduguide = application.service as EduGuideService;
+        return eduguide.category.replace("_", " ").toUpperCase();
+      case "finance":
+        const finance = application.service as FinanceService;
+        return finance.type;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Applications</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>New Application</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Application</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <Select onValueChange={setSelectedCourse}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.id} value={course.id}>
-                      {course.name} ({course.type} - {course.mode})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                className="w-full" 
-                onClick={handleNewApplication}
-                disabled={!selectedCourse}
-              >
-                Submit Application
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ApplicationsModal
+          courses={courses}
+          eduguideServices={eduguideServices}
+          financeServices={financeServices}
+        >
+          <Button>New Application</Button>
+        </ApplicationsModal>
       </div>
 
       <div className="grid gap-6">
@@ -205,46 +168,61 @@ export default function ApplicationsPage() {
           <Card key={application.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>{application.course.name}</CardTitle>
+                <CardTitle>{getServiceName(application)}</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {application.course.type} - {application.course.mode}
+                  {getServiceDetails(application)}
                 </p>
               </div>
               <div className="flex items-center space-x-4">
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  application.status === "completed"
+                  application.status === "approved"
                     ? "bg-green-100 text-green-800"
-                    : application.status === "in_progress"
-                    ? "bg-blue-100 text-blue-800"
+                    : application.status === "rejected"
+                    ? "bg-red-100 text-red-800"
                     : "bg-yellow-100 text-yellow-800"
                 }`}>
-                  {application.status.replace("_", " ").toUpperCase()}
+                  {application.status.toUpperCase()}
                 </span>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">Delete</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your application.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(application.id)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                {application.status === "pending" && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your application.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(application.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Applied on {new Date(application.created_at).toLocaleDateString()}
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Applied on {new Date(application.created_at).toLocaleDateString()}
+                </p>
+                {application.admin_response && (
+                  <div className="mt-4 p-4 bg-secondary/5 rounded-lg">
+                    <p className="font-medium mb-2">Admin Response:</p>
+                    <p className="text-sm text-muted-foreground">{application.admin_response}</p>
+                    {application.responded_at && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Responded on {new Date(application.responded_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}

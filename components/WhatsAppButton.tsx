@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
@@ -31,6 +32,9 @@ export default function WhatsAppButton() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Contact Us on WhatsApp</DialogTitle>
+          <DialogDescription>
+            Choose your preferred contact option below
+          </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 mt-4">
           <Button onClick={() => handleClick('Domestic')} className="w-full">

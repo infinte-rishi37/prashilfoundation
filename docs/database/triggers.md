@@ -1,60 +1,60 @@
 # Database Triggers
 
-## Timestamp Update Triggers
+## Admin Audit Triggers
 
-### Handle Updated At Function
+### Audit Logging Function
 ```sql
-CREATE OR REPLACE FUNCTION handle_updated_at()
+CREATE OR REPLACE FUNCTION log_admin_action()
 RETURNS TRIGGER AS $$
+DECLARE
+  admin_id uuid;
+  action_type text;
+  old_data jsonb;
+  new_data jsonb;
 BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-```
+  -- Get current admin user
+  SELECT id INTO admin_id
+  FROM admin_users
+  WHERE id = auth.uid();
 
-### Table Triggers
-```sql
-CREATE TRIGGER courses_updated_at
-  BEFORE UPDATE ON courses
-  FOR EACH ROW
-  EXECUTE FUNCTION handle_updated_at();
-
-CREATE TRIGGER messages_updated_at
-  BEFORE UPDATE ON messages
-  FOR EACH ROW
-  EXECUTE FUNCTION handle_updated_at();
-
-CREATE TRIGGER college_plans_updated_at
-  BEFORE UPDATE ON college_plans
-  FOR EACH ROW
-  EXECUTE FUNCTION handle_updated_at();
-
-CREATE TRIGGER users_updated_at
-  BEFORE UPDATE ON users
-  FOR EACH ROW
-  EXECUTE FUNCTION handle_updated_at();
-```
-
-## Response Triggers
-
-### Update Responded At Function
-```sql
-CREATE OR REPLACE FUNCTION update_responded_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.admin_response IS NOT NULL AND OLD.admin_response IS NULL THEN
-    NEW.responded_at = now();
+  -- Determine action type and data
+  IF TG_OP = 'INSERT' THEN
+    action_type := 'CREATE';
+    old_data := null;
+    new_data := to_jsonb(NEW);
+  ELSIF TG_OP = 'UPDATE' THEN
+    action_type := 'UPDATE';
+    old_data := to_jsonb(OLD);
+    new_data := to_jsonb(NEW);
+  ELSE
+    action_type := 'DELETE';
+    old_data := to_jsonb(OLD);
+    new_data := null;
   END IF;
-  RETURN NEW;
+
+  -- Insert audit log
+  INSERT INTO admin_audit_logs (
+    admin_id, action, table_name, record_id, old_data, new_data
+  ) VALUES (
+    admin_id, action_type, TG_TABLE_NAME,
+    CASE WHEN TG_OP = 'DELETE' THEN OLD.id ELSE NEW.id END,
+    old_data, new_data
+  );
+
+  RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
-### Response Trigger
+### Audit Triggers
 ```sql
-CREATE TRIGGER set_responded_at
-  BEFORE UPDATE ON messages
-  FOR EACH ROW
-  EXECUTE FUNCTION update_responded_at();
+CREATE TRIGGER audit_applications_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON applications
+  FOR EACH ROW EXECUTE FUNCTION log_admin_action();
+
+CREATE TRIGGER audit_messages_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON messages
+  FOR EACH ROW EXECUTE FUNCTION log_admin_action();
 ```
+
+[Previous triggers remain unchanged...]

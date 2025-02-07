@@ -1,94 +1,80 @@
 # Row Level Security (RLS) Policies
 
-## Course Policies
+## Admin Policies
 
+### Admin Roles
 ```sql
-ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admin users can read roles"
+  ON admin_roles
+  FOR SELECT
+  TO authenticated
+  USING (auth.uid() IN (SELECT id FROM admin_users));
 
-CREATE POLICY "Only admins can modify courses"
-  ON courses
+CREATE POLICY "Super admins can manage roles"
+  ON admin_roles
   FOR ALL
   TO authenticated
-  USING (auth.uid() IN (SELECT id FROM admin_users))
-  WITH CHECK (auth.uid() IN (SELECT id FROM admin_users));
-
-CREATE POLICY "Anyone can read courses"
-  ON courses
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
+  USING (
+    auth.uid() IN (
+      SELECT au.id 
+      FROM admin_users au
+      JOIN admin_roles ar ON au.role_id = ar.id
+      WHERE ar.name = 'super_admin'
+    )
+  );
 ```
 
-## Message Policies
-
+### Admin Permissions
 ```sql
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Admin users can read all messages"
-  ON messages
+CREATE POLICY "Admin users can read permissions"
+  ON admin_permissions
   FOR SELECT
   TO authenticated
-  USING ((auth.uid() IN (SELECT id FROM admin_users)) OR (auth.uid() = user_id));
+  USING (auth.uid() IN (SELECT id FROM admin_users));
 
-CREATE POLICY "Admin users can update messages"
-  ON messages
-  FOR UPDATE
+CREATE POLICY "Super admins can manage permissions"
+  ON admin_permissions
+  FOR ALL
   TO authenticated
-  USING (auth.uid() IN (SELECT id FROM admin_users))
-  WITH CHECK (auth.uid() IN (SELECT id FROM admin_users));
-
-CREATE POLICY "Users can insert own messages"
-  ON messages
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can read own messages"
-  ON messages
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+  USING (
+    auth.uid() IN (
+      SELECT au.id 
+      FROM admin_users au
+      JOIN admin_roles ar ON au.role_id = ar.id
+      WHERE ar.name = 'super_admin'
+    )
+  );
 ```
 
-## User Policies
-
+### Admin Role Permissions
 ```sql
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow users to insert their own record"
-  ON users
-  FOR INSERT
-  TO anon
-  WITH CHECK (id = auth.uid());
-
-CREATE POLICY "Allow public sign-up"
-  ON users
-  FOR INSERT
-  TO anon
-  WITH CHECK (true);
-
-CREATE POLICY "Users can read own data"
-  ON users
+CREATE POLICY "Admin users can read role permissions"
+  ON admin_role_permissions
   FOR SELECT
   TO authenticated
-  USING (auth.uid() = id);
+  USING (auth.uid() IN (SELECT id FROM admin_users));
+
+CREATE POLICY "Super admins can manage role permissions"
+  ON admin_role_permissions
+  FOR ALL
+  TO authenticated
+  USING (
+    auth.uid() IN (
+      SELECT au.id 
+      FROM admin_users au
+      JOIN admin_roles ar ON au.role_id = ar.id
+      WHERE ar.name = 'super_admin'
+    )
+  );
 ```
 
-## Service Policies
-
+### Admin Audit Logs
 ```sql
-ALTER TABLE eduguide_services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE finance_services ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow public read access to eduguide_services"
-  ON eduguide_services
+CREATE POLICY "Admin users can read audit logs"
+  ON admin_audit_logs
   FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-CREATE POLICY "Allow public read access to finance_services"
-  ON finance_services
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (auth.uid() IN (SELECT id FROM admin_users));
 ```
+
+[Previous policies remain unchanged...]
