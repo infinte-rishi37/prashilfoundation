@@ -67,14 +67,16 @@ export default function AdminApplicationsPage() {
                 .single();
               break;
           }
+          
           return {
             ...app,
-            service: serviceData?.data || null
+            service: serviceData?.data || null,
           };
         })
       );
 
       setApplications(applicationsWithServices);
+      console.log(applicationsWithServices);
     };
 
     fetchApplications();
@@ -135,9 +137,11 @@ export default function AdminApplicationsPage() {
       description: "Status updated successfully.",
     });
 
-    setApplications(applications.map(app => 
-      app.id === applicationId ? { ...app, status } : app
-    ));
+    setApplications(
+      applications.map<Application>((app) =>
+        app.id === applicationId ? { ...app, status: status as Application["status"] } : app
+      )
+    );
   };
 
   const getServiceName = (application: Application) => {

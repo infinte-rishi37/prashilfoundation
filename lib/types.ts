@@ -40,11 +40,15 @@ export type ServiceType = 'educare' | 'eduguide' | 'finance';
 export type Application = {
   id: string;
   user_id: string;
-  service_type: ServiceType;
+  service_type: "educare" | "eduguide" | "finance";
   service_id: string;
-  status: 'pending' | 'approved' | 'rejected';
-  admin_response?: string | null;
+  status: "pending" | "approved" | "rejected";
+  admin_response: string | null;
   created_at: string;
-  responded_at?: string | null;
-  service?: Course | EduGuideService | FinanceService;
+  responded_at: string | null;
+  user: {
+    email: string;
+    username: string;
+  };
+  service: Course | EduGuideService | FinanceService;
 };
