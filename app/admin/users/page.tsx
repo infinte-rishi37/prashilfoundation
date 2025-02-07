@@ -41,11 +41,10 @@ export default function AdminUsersPage() {
         console.error("Error fetching users:", error);
         return;
       }
-
       const processedUsers = data.map(user => ({
         ...user,
-        applications_count: user.applications?.length || 0,
-        messages_count: user.messages?.length || 0
+        applications_count: user.applications[0].count,
+        messages_count: user.messages[0].count
       }));
 
       setUsers(processedUsers);

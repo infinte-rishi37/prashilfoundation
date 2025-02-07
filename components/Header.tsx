@@ -24,7 +24,7 @@ export default function Header() {
       supabase
         .from("admin_users")
         .select()
-        .eq("id", session.user.id)
+        .eq("id", session?.user?.id)
         .single()
         .then(({ data: adminUser }) => {
           setIsAdmin(!!adminUser);
