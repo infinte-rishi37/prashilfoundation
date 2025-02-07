@@ -152,7 +152,7 @@ export default function ApplicationsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-5">
         <h1 className="text-3xl font-bold">Applications</h1>
         <ApplicationsModal
           courses={courses}

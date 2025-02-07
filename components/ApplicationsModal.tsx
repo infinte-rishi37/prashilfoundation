@@ -42,13 +42,12 @@ export default function ApplicationsModal({
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Application</DialogTitle>
           <DialogDescription>
@@ -73,7 +72,7 @@ export default function ApplicationsModal({
             <TabsTrigger value="finance">Finance</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="educare" className="space-y-4">
+          <TabsContent value="educare" className="space-y-4 overflow-y-auto">
             {filterItems(courses).map((course) => (
               <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
@@ -88,7 +87,7 @@ export default function ApplicationsModal({
                   serviceType="educare"
                   serviceName={course.name}
                 >
-                  <Button onClick={() => setIsOpen(false)}>Apply</Button>
+                  <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
               </div>
             ))}
@@ -114,7 +113,7 @@ export default function ApplicationsModal({
                   serviceType="eduguide"
                   serviceName={service.name}
                 >
-                  <Button onClick={() => setIsOpen(false)}>Apply</Button>
+                  <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
               </div>
             ))}
@@ -140,7 +139,7 @@ export default function ApplicationsModal({
                   serviceType="finance"
                   serviceName={service.name}
                 >
-                  <Button onClick={() => setIsOpen(false)}>Apply</Button>
+                  <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
               </div>
             ))}
