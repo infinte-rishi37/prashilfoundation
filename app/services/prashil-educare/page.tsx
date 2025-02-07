@@ -83,25 +83,11 @@ export default function PrashilEducarePage() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
-  const handleApply = async (courseId: string) => {
+  const handleApply = async (course: Course) => {
     if (!user) {
       router.push('/auth/sign-in');
       return;
     }
-
-    const { error } = await supabase
-      .from('applications')
-      .insert({
-        user_id: user.id,
-        course_id: courseId,
-        status: 'pending'
-      });
-
-    if (error) {
-      console.error('Error creating application:', error);
-      return;
-    }
-
     router.push('/dashboard/applications');
   };
 
@@ -187,7 +173,7 @@ export default function PrashilEducarePage() {
                       </Button>
                       {user && (
                         <Button 
-                          onClick={() => handleApply(course.id)}
+                          onClick={() => handleApply(course)}
                           className="flex items-center justify-center gap-2"
                         >
                           <ArrowRight className="h-4 w-4" />
@@ -228,7 +214,7 @@ export default function PrashilEducarePage() {
                       </Button>
                       {user && (
                         <Button 
-                          onClick={() => handleApply(course.id)}
+                          onClick={() => handleApply(course)}
                           className="flex items-center justify-center gap-2"
                         >
                           <ArrowRight className="h-4 w-4" />

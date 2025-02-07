@@ -96,25 +96,11 @@ export default function PrashilFinancePage() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
-  const handleApply = async (serviceId: string) => {
+  const handleApply = async (service: FinanceService) => {
     if (!user) {
       router.push('/auth/sign-in');
       return;
     }
-
-    const { error } = await supabase
-      .from('applications')
-      .insert({
-        user_id: user.id,
-        course_id: serviceId,
-        status: 'pending'
-      });
-
-    if (error) {
-      console.error('Error creating application:', error);
-      return;
-    }
-
     router.push('/dashboard/applications');
   };
 
@@ -183,7 +169,7 @@ export default function PrashilFinancePage() {
                     </Button>
                     {user && (
                       <Button 
-                        onClick={() => handleApply(service.id)}
+                        onClick={() => handleApply(service)}
                         className="flex items-center justify-center gap-2"
                       >
                         <ArrowRight className="h-4 w-4" />
@@ -227,7 +213,7 @@ export default function PrashilFinancePage() {
                     </Button>
                     {user && (
                       <Button 
-                        onClick={() => handleApply(service.id)}
+                        onClick={() => handleApply(service)}
                         className="flex items-center justify-center gap-2"
                       >
                         <ArrowRight className="h-4 w-4" />

@@ -225,7 +225,10 @@ export default function AdminApplicationsPage() {
                 <div>
                   <CardTitle>{getServiceName(application)}</CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    From: {application.user?.username} ({application.user?.email})
+                    Name: {application.user?.username}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Email: {application.user?.email}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Service Type: {application.service_type.toUpperCase()} - {getServiceDetails(application)}
