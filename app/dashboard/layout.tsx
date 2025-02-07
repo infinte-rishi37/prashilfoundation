@@ -36,7 +36,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-5rem)] pt-20">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-background">
         <div className="max-w-7xl mx-auto">

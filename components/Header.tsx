@@ -43,30 +43,29 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between h-20">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src={logo}
-                alt="Prashil Foundation Logo"
-                width={75}
-                height={75}
-                className="h-20 w-auto"
-              />
-              <span className="text-xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                Prashil Foundation
-              </span>
-            </Link>
-          </div>
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <Image
+              src={logo}
+              alt="Prashil Foundation Logo"
+              width={75}
+              height={75}
+              className="h-16 w-auto"
+            />
+            <span className="text-xl font-bold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+              Prashil Foundation
+            </span>
+          </Link>
 
-          {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Desktop Menu - Hidden on mobile */}
+          <nav className="hidden lg:flex items-center space-x-6">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium transition-colors hover:text-primary"
+                className="text-sm font-medium transition-colors hover:text-primary whitespace-nowrap"
               >
                 {item.label}
               </Link>
@@ -89,54 +88,56 @@ export default function Header() {
             )}
           </nav>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button - Visible only on mobile */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
+            <SheetTrigger asChild className="lg:hidden">
               <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent>
-              <div className="flex items-center mb-8">
-                <Image
-                  src={logo}
-                  alt="Prashil Foundation Logo"
-                  width={60}
-                  height={60}
-                  className="h-16 w-auto"
-                />
-                <span className="text-lg font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                  Prashil Foundation
-                </span>
+            <SheetContent side="right" className="w-[300px]">
+              <div className="flex flex-col h-full py-6">
+                <div className="flex items-center mb-8">
+                  <Image
+                    src={logo}
+                    alt="Prashil Foundation Logo"
+                    width={60}
+                    height={60}
+                    className="h-12 w-auto"
+                  />
+                  <span className="text-lg font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                    Prashil Foundation
+                  </span>
+                </div>
+                <nav className="flex flex-col space-y-4">
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="text-sm font-medium transition-colors hover:text-primary"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  {user ? (
+                    <Button onClick={handleSignOut} variant="outline">
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col space-y-2">
+                      <Link href="/auth/sign-in" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full">Sign In</Button>
+                      </Link>
+                      <Link href="/auth/sign-up" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                          Sign Up
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </nav>
               </div>
-              <nav className="flex flex-col space-y-4">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                {user ? (
-                  <Button onClick={handleSignOut} variant="outline">
-                    Sign Out
-                  </Button>
-                ) : (
-                  <>
-                    <Link href="/auth/sign-in" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full">Sign In</Button>
-                    </Link>
-                    <Link href="/auth/sign-up" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                        Sign Up
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </nav>
             </SheetContent>
           </Sheet>
         </div>

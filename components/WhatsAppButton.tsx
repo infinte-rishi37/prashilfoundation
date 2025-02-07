@@ -30,7 +30,7 @@ export default function WhatsAppButton() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Choose Your Location</DialogTitle>
+          <DialogTitle>Contact Us on WhatsApp</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 mt-4">
           <Button onClick={() => handleClick('Domestic')} className="w-full">
