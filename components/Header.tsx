@@ -15,11 +15,20 @@ const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session: any) => {
       setUser(session?.user || null);
+      supabase
+        .from("admin_users")
+        .select()
+        .eq("id", session.user.id)
+        .single()
+        .then(({ data: adminUser }) => {
+          setIsAdmin(!!adminUser);
+        });
     });
 
     return () => {
@@ -41,7 +50,10 @@ export default function Header() {
   ];
 
   if (user) {
-    menuItems.push({ label: "Dashboard", href: "/dashboard" });
+    menuItems.push({
+      label: "Dashboard",
+      href: isAdmin ? "/admin" : "/dashboard",
+    });
   }
 
   const isActive = (href: string) => {
