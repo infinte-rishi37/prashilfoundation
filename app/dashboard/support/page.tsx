@@ -72,10 +72,6 @@ export default function SupportPage() {
         title: "Success!",
         description: "Your support request has been submitted.",
       });
-
-      // Refresh data
-      router.refresh();
-      fetchMessages(); // Add this function to refetch data
       reset();
     } catch (error: any) {
       toast({
