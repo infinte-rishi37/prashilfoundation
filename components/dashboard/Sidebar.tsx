@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import Image from "next/image";
+const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 import { supabase } from "@/lib/supabase";
 
 const navigation = [
@@ -68,6 +70,22 @@ export function Sidebar() {
     <>
       {/* Desktop Sidebar */}
       <div className="hidden md:flex flex-col w-64 bg-card border-r">
+      <div className="flex-shrink-0 flex border-b p-2">
+            <Link
+            key="Prashil Foundation"
+            href="/"
+            className="flex gap-2 items-center text-sm font-medium rounded-md transition-colors"
+            > 
+              <Image
+                src={logo}
+                alt="Prashil Foundation Logo"
+                width={150}
+                height={150}
+                className="mx-auto object-cover"
+              />
+                <span className="text-base font-bold">Prashil Foundation</span>
+            </Link>
+        </div>
         <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
           <nav className="mt-5 flex-1 px-2 space-y-1">
             <NavContent />
@@ -94,6 +112,18 @@ export function Sidebar() {
         </SheetTrigger>
         <SheetContent side="left" className="w-64">
           <div className="flex flex-col h-full">
+            <Link
+            key="Prashil Foundation"
+            href="/"
+            > 
+              <Image
+                src={logo}
+                alt="Prashil Foundation Logo"
+                width={150}
+                height={150}
+                className="mx-auto object-cover"
+              />
+            </Link>
             <div className="flex-1 py-4">
               <NavContent />
             </div>
