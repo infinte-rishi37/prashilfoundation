@@ -32,7 +32,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -40,12 +39,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// Make most fields optional
 const serviceSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  type: z.enum(["Domestic", "Abroad"]),
+  description: z.string().optional(),
+  type: z.enum(["Domestic", "Abroad"]).optional(),
   mode: z.enum(["Online", "Offline"]).optional(),
-  fees: z.number().min(0, "Fees must be positive"),
+  fees: z.number().min(0, "Fees must be positive").optional(),
   startDate: z.string().optional(),
   location: z.string().optional(),
   category: z.enum(["career_counselling", "college_admission"]).optional(),
@@ -65,6 +65,7 @@ export default function ManageServicesPage() {
   const [editingService, setEditingService] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -109,7 +110,7 @@ export default function ManageServicesPage() {
     fetchServices(activeTab);
   }, [activeTab]);
 
-  const handleTabChange = (value: string) => { 
+  const handleTabChange = (value: string) => {
     setEditingService(null);
     setActiveTab(value);
     fetchServices(value);
@@ -119,46 +120,47 @@ export default function ManageServicesPage() {
 
   const onSubmitForm = async (data: ServiceForm) => {
     setIsLoading(true);
-    alert("submitted");
     let table = "";
-    let serviceData = {};
+    let serviceData: any = {};
 
+    // Only include defined values in serviceData
     switch (activeTab) {
       case "educare":
         table = "courses";
         serviceData = {
           name: data.name,
-          type: data.type,
-          mode: data.mode,
-          fees: data.fees,
-          start_date: data.startDate,
+          ...(data.type && { type: data.type }),
+          ...(data.mode && { mode: data.mode }),
+          ...(data.fees && { fees: data.fees }),
+          ...(data.startDate && { start_date: data.startDate }),
         };
         break;
       case "eduguide":
         table = "eduguide_services";
         serviceData = {
           name: data.name,
-          description: data.description,
-          category: data.category,
-          fee: data.fees,
-          min_students: data.minStudents,
-          location: data.location,
+          ...(data.description && { description: data.description }),
+          ...(data.category && { category: data.category }),
+          ...(data.fees && { fee: data.fees }),
+          ...(data.minStudents && { min_students: data.minStudents }),
+          ...(data.location && { location: data.location }),
         };
         break;
       case "finance":
         table = "finance_services";
         serviceData = {
           name: data.name,
-          description: data.description,
-          type: data.type,
-          min_amount: data.minAmount,
-          max_amount: data.maxAmount,
-          interest_rate: data.interestRate,
-          processing_fee: data.processingFee,
-          duration: data.duration,
+          ...(data.description && { description: data.description }),
+          ...(data.type && { type: data.type }),
+          ...(data.minAmount && { min_amount: data.minAmount }),
+          ...(data.maxAmount && { max_amount: data.maxAmount }),
+          ...(data.interestRate && { interest_rate: data.interestRate }),
+          ...(data.processingFee && { processing_fee: data.processingFee }),
+          ...(data.duration && { duration: data.duration }),
         };
         break;
     }
+    console.log(data);
 
     try {
       if (editingService) {
@@ -186,6 +188,7 @@ export default function ManageServicesPage() {
         });
       }
 
+      setIsDialogOpen(false);
       reset();
       setEditingService(null);
       router.refresh();
@@ -202,8 +205,31 @@ export default function ManageServicesPage() {
 
   const handleEdit = (service: any) => {
     setEditingService(service);
-    Object.keys(service).forEach((key) => {
-      setValue(key as any, service[key]);
+    setIsDialogOpen(true);
+
+    // Map the service data to form fields
+    const formData: any = {
+      name: service.name,
+      description: service.description,
+      type: service.type,
+      fees: service.fees || service.fee,
+      startDate: service.start_date,
+      mode: service.mode,
+      category: service.category,
+      location: service.location,
+      minStudents: service.min_students,
+      minAmount: service.min_amount,
+      maxAmount: service.max_amount,
+      interestRate: service.interest_rate,
+      processingFee: service.processing_fee,
+      duration: service.duration,
+    };
+
+    // Only set defined values
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        setValue(key as any, value);
+      }
     });
   };
 
@@ -252,14 +278,39 @@ export default function ManageServicesPage() {
     <div className="space-y-4">
       <div className="flex h-20 justify-between items-center">
         <h1 className="text-3xl font-bold">Manage Services</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              {editingService ? <Pencil className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-              {editingService ? "Edit Service" : "Add Service"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-scroll">
+        <Button onClick={() => {
+          setEditingService(null);
+          reset();
+          setIsDialogOpen(true);
+        }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Service
+        </Button>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4 flex-wrap gap-2 h-20">
+          <Tabs defaultValue="educare" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="educare">Educare</TabsTrigger>
+              <TabsTrigger value="eduguide">EduGuide</TabsTrigger>
+              <TabsTrigger value="finance">Finance</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search services..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {(editingService ? "Edit " : "Add New ") + activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + " Service"}
@@ -349,13 +400,15 @@ export default function ManageServicesPage() {
               {activeTab === "eduguide" && (
                 <>
                   <Input
-                    type="number"
-                    placeholder="Minimum Students"
-                    {...register("minStudents", { valueAsNumber: true })}
+                  type="number"
+                  placeholder="Minimum Students"
+                  {...register("minStudents", {
+                    setValueAs: (value) => (value === "" ? undefined : Number(value)),
+                  })}
                   />
                   <Input
-                    placeholder="Location"
-                    {...register("location")}
+                  placeholder="Location"
+                  {...register("location")}
                   />
                 </>
               )}
@@ -365,22 +418,24 @@ export default function ManageServicesPage() {
                   <Input
                     type="number"
                     placeholder="Minimum Amount"
-                    {...register("minAmount", { valueAsNumber: true })}
+                    {...register("minStudents", {
+                      setValueAs: (value) => (value === "" ? undefined : Number(value)),
+                    })}
                   />
                   <Input
                     type="number"
                     placeholder="Maximum Amount"
-                    {...register("maxAmount", { valueAsNumber: true })}
+                    {...register("maxAmount", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
                   />
                   <Input
                     type="number"
                     placeholder="Interest Rate"
-                    {...register("interestRate", { valueAsNumber: true })}
+                    {...register("interestRate", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
                   />
                   <Input
                     type="number"
                     placeholder="Processing Fee"
-                    {...register("processingFee", { valueAsNumber: true })}
+                    {...register("processingFee", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
                   />
                   <Input
                     placeholder="Duration"
@@ -395,30 +450,8 @@ export default function ManageServicesPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center space-x-4 flex-wrap gap-2 h-20">
-          <Tabs defaultValue="educare" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="educare">Educare</TabsTrigger>
-              <TabsTrigger value="eduguide">EduGuide</TabsTrigger>
-              <TabsTrigger value="finance">Finance</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search services..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 h-[calc(100vh-250px)] overflow-scroll">
+        <div className="grid gap-4 h-[calc(100vh-250px)] overflow-y-auto">
           {filteredServices.map((service) => (
             <Card key={service.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -459,7 +492,7 @@ export default function ManageServicesPage() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   {Object.entries(service).map(([key, value]) => {
-                    if (key === "id" || key === "created_at" || key === "updated_at") return null;
+                    if (key === "id" || key === "created_at" || key === "updated_at" || value === null) return null;
                     return (
                       <div key={key} className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">
