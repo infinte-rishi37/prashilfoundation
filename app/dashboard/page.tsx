@@ -29,6 +29,32 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
+    const addUserIfNotExists = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      
+      if (existingUser === null) {
+        await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            username: user.email?.split('@')[0] || `user_${Math.random().toString(36).slice(2, 7)}`,
+          });
+      }
+    };
+
+    addUserIfNotExists();
+  }, []);
+
+
+  useEffect(() => {
     const fetchStats = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
