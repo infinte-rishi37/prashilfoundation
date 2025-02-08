@@ -26,24 +26,24 @@ export default function AdminMessagesPage() {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from("messages")
+      .select(`
+        *,
+        user:users(email, username)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching messages:", error);
+      return;
+    }
+
+    setMessages(data || []);
+  };
+
   useEffect(() => {
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select(`
-          *,
-          user:users(email, username)
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching messages:", error);
-        return;
-      }
-
-      setMessages(data || []);
-    };
-
     fetchMessages();
   }, []);
 
@@ -73,13 +73,10 @@ export default function AdminMessagesPage() {
       description: "Response sent successfully.",
     });
 
-    setMessages(messages.map(msg => 
-      msg.id === messageId ? { 
-        ...msg, 
-        admin_response: response,
-        responded_at: new Date().toISOString()
-      } : msg
-    ));
+    // Refresh data
+    router.refresh();
+    fetchMessages();
+
     setResponses({ ...responses, [messageId]: "" });
   };
 

@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -24,61 +25,62 @@ export default function AdminApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const { toast } = useToast();
+  const router = useRouter();
+
+  const fetchApplications = async () => {
+    const { data, error } = await supabase
+      .from("applications")
+      .select(`
+        *,
+        user:users(email, username)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching applications:", error);
+      return;
+    }
+
+    // Fetch service details for each application
+    const applicationsWithServices = await Promise.all(
+      (data || []).map(async (app) => {
+        let serviceData;
+        switch (app.service_type) {
+          case "educare":
+            serviceData = await supabase
+              .from("courses")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+          case "eduguide":
+            serviceData = await supabase
+              .from("eduguide_services")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+          case "finance":
+            serviceData = await supabase
+              .from("finance_services")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+        }
+        
+        return {
+          ...app,
+          service: serviceData?.data || null,
+        };
+      })
+    );
+
+    setApplications(applicationsWithServices);
+    console.log(applicationsWithServices);
+  };
 
   useEffect(() => {
-    const fetchApplications = async () => {
-      const { data, error } = await supabase
-        .from("applications")
-        .select(`
-          *,
-          user:users(email, username)
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching applications:", error);
-        return;
-      }
-
-      // Fetch service details for each application
-      const applicationsWithServices = await Promise.all(
-        (data || []).map(async (app) => {
-          let serviceData;
-          switch (app.service_type) {
-            case "educare":
-              serviceData = await supabase
-                .from("courses")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-            case "eduguide":
-              serviceData = await supabase
-                .from("eduguide_services")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-            case "finance":
-              serviceData = await supabase
-                .from("finance_services")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-          }
-          
-          return {
-            ...app,
-            service: serviceData?.data || null,
-          };
-        })
-      );
-
-      setApplications(applicationsWithServices);
-      console.log(applicationsWithServices);
-    };
-
     fetchApplications();
   }, []);
 
@@ -107,13 +109,10 @@ export default function AdminApplicationsPage() {
       description: "Response sent successfully.",
     });
 
-    setApplications(applications.map(app => 
-      app.id === applicationId ? { 
-        ...app, 
-        admin_response: response,
-        responded_at: new Date().toISOString()
-      } : app
-    ));
+    // Refresh data
+    router.refresh();
+    fetchApplications();
+
     setResponses({ ...responses, [applicationId]: "" });
   };
 
@@ -137,11 +136,9 @@ export default function AdminApplicationsPage() {
       description: "Status updated successfully.",
     });
 
-    setApplications(
-      applications.map<Application>((app) =>
-        app.id === applicationId ? { ...app, status: status as Application["status"] } : app
-      )
-    );
+    // Refresh data
+    router.refresh();
+    fetchApplications();
   };
 
   const getServiceName = (application: Application) => {

@@ -52,9 +52,9 @@ export default function MessagesPage() {
       return;
     }
 
-    setMessages(messages.map(msg => 
-      msg.id === id ? { ...msg, is_read: true } : msg
-    ));
+    // Refresh data
+    router.refresh();
+    fetchMessages(); // Add this function to refetch data
   };
 
   return (

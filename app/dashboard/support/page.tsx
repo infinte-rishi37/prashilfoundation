@@ -72,11 +72,15 @@ export default function SupportPage() {
         title: "Success!",
         description: "Your support request has been submitted.",
       });
+
+      // Refresh data
+      router.refresh();
+      fetchMessages(); // Add this function to refetch data
       reset();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to submit support request. Please try again.",
+        description: error.message || "Failed to submit support request",
         variant: "destructive",
       });
     }

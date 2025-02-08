@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
 import ApplicationsModal from "@/components/ApplicationsModal";
+import { useRouter } from "next/navigation";
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -25,83 +26,84 @@ export default function ApplicationsPage() {
   const [eduguideServices, setEduguideServices] = useState<EduGuideService[]>([]);
   const [financeServices, setFinanceServices] = useState<FinanceService[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
+
+  const fetchApplications = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const [
+      applicationsRes,
+      coursesRes,
+      eduguideRes,
+      financeRes
+    ] = await Promise.all([
+      supabase
+        .from("applications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("courses")
+        .select("*")
+        .order("name", { ascending: true }),
+      supabase
+        .from("eduguide_services")
+        .select("*")
+        .order("name", { ascending: true }),
+      supabase
+        .from("finance_services")
+        .select("*")
+        .order("name", { ascending: true })
+    ]);
+
+    if (applicationsRes.error) {
+      console.error("Error fetching applications:", applicationsRes.error);
+      return;
+    }
+
+    // Fetch service details for each application
+    const applicationsWithServices = await Promise.all(
+      (applicationsRes.data || []).map(async (app) => {
+        let serviceData;
+        switch (app.service_type) {
+          case "educare":
+            serviceData = await supabase
+              .from("courses")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+          case "eduguide":
+            serviceData = await supabase
+              .from("eduguide_services")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+          case "finance":
+            serviceData = await supabase
+              .from("finance_services")
+              .select("*")
+              .eq("id", app.service_id)
+              .single();
+            break;
+        }
+        return {
+          ...app,
+          service: serviceData?.data || null
+        };
+      })
+    );
+
+    setApplications(applicationsWithServices);
+    setCourses(coursesRes.data || []);
+    setEduguideServices(eduguideRes.data || []);
+    setFinanceServices(financeRes.data || []);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const [
-        applicationsRes,
-        coursesRes,
-        eduguideRes,
-        financeRes
-      ] = await Promise.all([
-        supabase
-          .from("applications")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("courses")
-          .select("*")
-          .order("name", { ascending: true }),
-        supabase
-          .from("eduguide_services")
-          .select("*")
-          .order("name", { ascending: true }),
-        supabase
-          .from("finance_services")
-          .select("*")
-          .order("name", { ascending: true })
-      ]);
-
-      if (applicationsRes.error) {
-        console.error("Error fetching applications:", applicationsRes.error);
-        return;
-      }
-
-      // Fetch service details for each application
-      const applicationsWithServices = await Promise.all(
-        (applicationsRes.data || []).map(async (app) => {
-          let serviceData;
-          switch (app.service_type) {
-            case "educare":
-              serviceData = await supabase
-                .from("courses")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-            case "eduguide":
-              serviceData = await supabase
-                .from("eduguide_services")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-            case "finance":
-              serviceData = await supabase
-                .from("finance_services")
-                .select("*")
-                .eq("id", app.service_id)
-                .single();
-              break;
-          }
-          return {
-            ...app,
-            service: serviceData?.data || null
-          };
-        })
-      );
-
-      setApplications(applicationsWithServices);
-      setCourses(coursesRes.data || []);
-      setEduguideServices(eduguideRes.data || []);
-      setFinanceServices(financeRes.data || []);
-    };
-
-    fetchData();
+    fetchApplications();
   }, []);
 
   const handleDelete = async (applicationId: string) => {
@@ -124,7 +126,9 @@ export default function ApplicationsPage() {
       description: "Application deleted successfully."
     });
 
-    setApplications(applications.filter(app => app.id !== applicationId));
+    // Refresh data
+    router.refresh();
+    fetchApplications();
   };
 
   const getServiceName = (application: Application) => {

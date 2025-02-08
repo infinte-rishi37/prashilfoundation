@@ -30,28 +30,28 @@ export default function ProfilePage() {
     resolver: zodResolver(profileSchema),
   });
 
+  const fetchProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+      return;
+    }
+
+    if (data) {
+      setValue("username", data.username);
+      setValue("email", data.email);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        return;
-      }
-
-      if (data) {
-        setValue("username", data.username);
-        setValue("email", data.email);
-      }
-    };
-
     fetchProfile();
   }, [setValue]);
 
@@ -75,6 +75,10 @@ export default function ProfilePage() {
         title: "Success!",
         description: "Your profile has been updated.",
       });
+
+      // Refresh data
+      router.refresh();
+      fetchProfile(); // Add this function to refetch data
     } catch (error) {
       toast({
         title: "Error",
