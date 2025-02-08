@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
@@ -18,26 +19,27 @@ type Message = {
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const router = useRouter();
+
+  const fetchMessages = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching messages:", error);
+      return;
+    }
+
+    setMessages(data || []);
+  };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching messages:", error);
-        return;
-      }
-
-      setMessages(data || []);
-    };
-
     fetchMessages();
   }, []);
 
