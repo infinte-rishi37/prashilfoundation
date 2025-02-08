@@ -109,15 +109,17 @@ export default function ManageServicesPage() {
     fetchServices(activeTab);
   }, [activeTab]);
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = (value: string) => { 
+    setEditingService(null);
     setActiveTab(value);
     fetchServices(value);
     setSearchTerm("");
     reset();
   };
 
-  const onSubmit = async (data: ServiceForm) => {
+  const onSubmitForm = async (data: ServiceForm) => {
     setIsLoading(true);
+    alert("submitted");
     let table = "";
     let serviceData = {};
 
@@ -247,26 +249,26 @@ export default function ManageServicesPage() {
   );
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4">
+      <div className="flex h-20 justify-between items-center">
         <h1 className="text-3xl font-bold">Manage Services</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Service
+              {editingService ? <Pencil className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+              {editingService ? "Edit Service" : "Add Service"}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-scroll">
             <DialogHeader>
               <DialogTitle>
-                {editingService ? "Edit Service" : "Add New Service"}
+                {(editingService ? "Edit " : "Add New ") + activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + " Service"}
               </DialogTitle>
               <DialogDescription>
                 Fill in the service details below
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
               <Input
                 placeholder="Service Name"
                 {...register("name")}
@@ -396,8 +398,8 @@ export default function ManageServicesPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center space-x-4">
-          <Tabs defaultValue="educare" className="flex-1" onValueChange={handleTabChange}>
+        <div className="flex items-center space-x-4 flex-wrap gap-2 h-20">
+          <Tabs defaultValue="educare" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="educare">Educare</TabsTrigger>
               <TabsTrigger value="eduguide">EduGuide</TabsTrigger>
@@ -405,7 +407,7 @@ export default function ManageServicesPage() {
             </TabsList>
           </Tabs>
 
-          <div className="relative w-64">
+          <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search services..."
@@ -416,7 +418,7 @@ export default function ManageServicesPage() {
           </div>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-4 h-[calc(100vh-250px)] overflow-scroll">
           {filteredServices.map((service) => (
             <Card key={service.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

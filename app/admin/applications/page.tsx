@@ -222,7 +222,7 @@ export default function AdminApplicationsPage() {
         {filteredApplications.map((application) => (
           <Card key={application.id}>
             <CardHeader>
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-2 flex-wrap">
                 <div>
                   <CardTitle>{getServiceName(application)}</CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">

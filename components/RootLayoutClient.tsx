@@ -15,7 +15,7 @@ export default function RootLayoutClient({
 
   return (
     <>
-      <Header />
+      {!isDashboard && <Header />}
       <main className={`flex-1 ${!isDashboard ? "mt-20" : ""}`}>
         {children}
       </main>

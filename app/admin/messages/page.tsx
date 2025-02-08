@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
@@ -25,6 +26,7 @@ export default function AdminMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [responses, setResponses] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const router = useRouter();
 
   const fetchMessages = async () => {
     const { data, error } = await supabase
@@ -81,7 +83,7 @@ export default function AdminMessagesPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <h1 className="text-3xl font-bold">User Messages</h1>
 
       <div className="grid gap-6">
