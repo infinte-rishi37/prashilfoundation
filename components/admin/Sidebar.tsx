@@ -10,6 +10,7 @@ import {
   FileText,
   LogOut,
   Menu,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Applications", href: "/admin/applications", icon: FileText },
   { name: "Messages", href: "/admin/messages", icon: Mail },
   { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Services", href: "/admin/services", icon: Settings },
 ];
 
 export function AdminSidebar() {
