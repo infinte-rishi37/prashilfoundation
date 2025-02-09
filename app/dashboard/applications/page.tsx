@@ -19,6 +19,9 @@ import {
 import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
 import ApplicationsModal from "@/components/ApplicationsModal";
 import { useRouter } from "next/navigation";
+import { sendStatusCode } from "next/dist/server/api-utils";
+import { set } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -27,8 +30,10 @@ export default function ApplicationsPage() {
   const [financeServices, setFinanceServices] = useState<FinanceService[]>([]);
   const { toast } = useToast();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchApplications = async () => {
+    setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -100,6 +105,7 @@ export default function ApplicationsPage() {
     setCourses(coursesRes.data || []);
     setEduguideServices(eduguideRes.data || []);
     setFinanceServices(financeRes.data || []);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -154,6 +160,14 @@ export default function ApplicationsPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center flex-wrap gap-5">
@@ -162,6 +176,7 @@ export default function ApplicationsPage() {
           courses={courses}
           eduguideServices={eduguideServices}
           financeServices={financeServices}
+          onClose={fetchApplications}
         >
           <Button>New Application</Button>
         </ApplicationsModal>
@@ -231,7 +246,7 @@ export default function ApplicationsPage() {
           </Card>
         ))}
 
-        {applications.length === 0 && (
+        {applications.length === 0 && !isLoading && (
           <Card>
             <CardContent className="text-center py-6">
               <p className="text-muted-foreground">No applications found</p>

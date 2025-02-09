@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
-import { Mail, Users, Clock, GraduationCap, BookOpen, PiggyBank, CheckCircle, Bell } from "lucide-react";
+import { Mail, Users, Clock, GraduationCap, BookOpen, PiggyBank, CheckCircle, Bell, Loader2 } from "lucide-react";
 
 type DashboardStats = {
   totalMessages: number;
@@ -38,8 +38,11 @@ export default function AdminDashboardPage() {
     successfulEnrollments: 0
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchStats = async () => {
+      setIsLoading(true);
       const [
         messages,
         users,
@@ -108,10 +111,19 @@ export default function AdminDashboardPage() {
         },
         successfulEnrollments: successfulEnrollments.count || 0
       });
+      setIsLoading(false);
     };
 
     fetchStats();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

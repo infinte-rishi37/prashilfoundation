@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 type Message = {
   id: string;
@@ -25,10 +26,12 @@ type Message = {
 export default function AdminMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [responses, setResponses] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const router = useRouter();
 
   const fetchMessages = async () => {
+    setIsLoading(true);
     const { data, error } = await supabase
       .from("messages")
       .select(`
@@ -43,6 +46,7 @@ export default function AdminMessagesPage() {
     }
 
     setMessages(data || []);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -81,6 +85,14 @@ export default function AdminMessagesPage() {
 
     setResponses({ ...responses, [messageId]: "" });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

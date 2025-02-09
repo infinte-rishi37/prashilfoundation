@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { FileText, Mail, User, GraduationCap, BookOpen, PiggyBank } from "lucide-react";
+import { set } from "date-fns";
 
 type DashboardStats = {
   totalApplications: number;
@@ -27,6 +28,7 @@ export default function DashboardPage() {
       finance: 0
     }
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const addUserIfNotExists = async () => {
@@ -55,6 +57,7 @@ export default function DashboardPage() {
 
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchStats = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -108,6 +111,7 @@ export default function DashboardPage() {
     };
 
     fetchStats();
+    setIsLoading(false);
   }, []);
 
   return (

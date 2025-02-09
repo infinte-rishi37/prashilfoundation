@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -25,6 +26,7 @@ type ApplicationsModalProps = {
   courses: Course[];
   eduguideServices: EduGuideService[];
   financeServices: FinanceService[];
+  onClose: () => Promise<void>;
   children: React.ReactNode;
 };
 
@@ -32,6 +34,7 @@ export default function ApplicationsModal({
   courses,
   eduguideServices,
   financeServices,
+  onClose,
   children
 }: ApplicationsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,12 +45,22 @@ export default function ApplicationsModal({
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
+
+  const handleClose = async () => {
+    try {
+      await onClose();
+      console.log('Modal closed successfully');
+    } catch (error) {
+      console.error('Error closing modal:', error);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto ram-ram" onCloseAutoFocus={handleClose}>
         <DialogHeader>
           <DialogTitle>New Application</DialogTitle>
           <DialogDescription>

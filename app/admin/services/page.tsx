@@ -36,8 +36,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, Pencil, Trash } from "lucide-react";
+import { Search, Plus, Pencil, Trash, Loader, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { set } from "date-fns";
 
 // Make most fields optional
 const serviceSchema = z.object({
@@ -64,6 +65,7 @@ export default function ManageServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [editingService, setEditingService] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [content, setContent] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -80,6 +82,7 @@ export default function ManageServicesPage() {
   });
 
   const fetchServices = async (type: string) => {
+    setContent(false);
     let table = "";
     switch (type) {
       case "educare":
@@ -104,6 +107,7 @@ export default function ManageServicesPage() {
     }
 
     setServices(data || []);
+    setContent(true);
   };
 
   useEffect(() => {
@@ -160,7 +164,6 @@ export default function ManageServicesPage() {
         };
         break;
     }
-    console.log(data);
 
     try {
       if (editingService) {
@@ -418,24 +421,22 @@ export default function ManageServicesPage() {
                   <Input
                     type="number"
                     placeholder="Minimum Amount"
-                    {...register("minStudents", {
-                      setValueAs: (value) => (value === "" ? undefined : Number(value)),
-                    })}
+                    {...register("minStudents", { valueAsNumber: true })}
                   />
                   <Input
                     type="number"
                     placeholder="Maximum Amount"
-                    {...register("maxAmount", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
+                    {...register("maxAmount", { valueAsNumber: true })}
                   />
                   <Input
                     type="number"
                     placeholder="Interest Rate"
-                    {...register("interestRate", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
+                    {...register("interestRate", { valueAsNumber: true })}
                   />
                   <Input
                     type="number"
                     placeholder="Processing Fee"
-                    {...register("processingFee", { setValueAs: (value) => (value === "" ? undefined : Number(value)), })}
+                    {...register("processingFee", { valueAsNumber: true })}
                   />
                   <Input
                     placeholder="Duration"
@@ -452,7 +453,7 @@ export default function ManageServicesPage() {
         </Dialog>
 
         <div className="grid gap-4 h-[calc(100vh-250px)] overflow-y-auto">
-          {filteredServices.map((service) => (
+          {content ? (filteredServices.map((service) => (
             <Card key={service.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xl">{service.name}</CardTitle>
@@ -509,9 +510,13 @@ export default function ManageServicesPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))) : (
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+          )}
 
-          {filteredServices.length === 0 && (
+          {filteredServices.length === 0  && (
             <Card>
               <CardContent className="text-center py-6">
                 <p className="text-muted-foreground">No services found</p>

@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Application, Course, EduGuideService, FinanceService } from "@/lib/types";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AdminApplicationsPage() {
@@ -24,10 +24,12 @@ export default function AdminApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const router = useRouter();
 
   const fetchApplications = async () => {
+    setIsLoading(true);
     const { data, error } = await supabase
       .from("applications")
       .select(`
@@ -38,6 +40,12 @@ export default function AdminApplicationsPage() {
 
     if (error) {
       console.error("Error fetching applications:", error);
+      setIsLoading(false);
+      toast({
+        title: "Failure",
+        description: "Error fetching applications!",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -68,7 +76,8 @@ export default function AdminApplicationsPage() {
               .single();
             break;
         }
-        
+
+        setIsLoading(false);
         return {
           ...app,
           service: serviceData?.data || null,
@@ -77,7 +86,6 @@ export default function AdminApplicationsPage() {
     );
 
     setApplications(applicationsWithServices);
-    console.log(applicationsWithServices);
   };
 
   useEffect(() => {
@@ -175,6 +183,14 @@ export default function AdminApplicationsPage() {
 
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

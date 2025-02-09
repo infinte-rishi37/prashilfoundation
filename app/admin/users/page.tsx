@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
-import { Search, Mail, Calendar, FileText, MessageSquare } from "lucide-react";
+import { Search, Mail, Calendar, FileText, MessageSquare, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,10 +25,12 @@ type User = {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from("users")
         .select(`
@@ -48,6 +50,7 @@ export default function AdminUsersPage() {
       }));
 
       setUsers(processedUsers);
+      setIsLoading(false);
     };
 
     fetchUsers();
@@ -57,6 +60,14 @@ export default function AdminUsersPage() {
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

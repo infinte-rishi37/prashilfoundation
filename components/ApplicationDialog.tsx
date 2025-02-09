@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { ServiceType } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 type ApplicationDialogProps = {
   serviceId: string;
@@ -42,6 +43,7 @@ export default function ApplicationDialog({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleApply = async () => {
     setIsLoading(true);
@@ -65,6 +67,7 @@ export default function ApplicationDialog({
         description: "Application submitted successfully.",
       });
 
+      router.refresh();
       setIsConfirmOpen(false);
       setIsOpen(false);
     } catch (error: any) {
