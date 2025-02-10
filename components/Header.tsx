@@ -135,7 +135,7 @@ export default function Header() {
                     className="h-12 w-auto"
                   />
                   <span className="text-base font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                    Prashil Foundation
+                    Prashil <br /> Foundation
                   </span>
                   <ThemeToggle />
                 </div>
