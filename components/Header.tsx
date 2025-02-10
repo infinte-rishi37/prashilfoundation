@@ -126,17 +126,19 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px]">
               <div className="flex flex-col h-full py-6">
-                <div className="flex items-center mb-8">
-                  <Image
-                    src={logo}
-                    alt="Prashil Foundation Logo"
-                    width={60}
-                    height={60}
-                    className="h-12 w-auto"
-                  />
-                  <span className="text-base font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                    Prashil <br /> Foundation
-                  </span>
+                <div className="flex items-center justify-between object-center mb-8">
+                  <div className="flex items-center">
+                    <Image
+                      src={logo}
+                      alt="Prashil Foundation Logo"
+                      width={60}
+                      height={60}
+                      className="h-12 w-auto"
+                    />
+                    <span className="text-base font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                      Prashil <br /> Foundation
+                    </span>
+                  </div>
                   <ThemeToggle />
                 </div>
                 <nav className="flex flex-col space-y-2">
