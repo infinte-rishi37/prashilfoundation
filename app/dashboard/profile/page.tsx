@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { Avatar } from "@/components/ui/avatar";
 
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -21,6 +22,8 @@ type ProfileForm = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [avatar, setAvatar] = useState("");
+  const [name, setName] = useState("");
   const router = useRouter();
 
   const {
@@ -35,6 +38,10 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+    console.log(user.user_metadata);
+    setAvatar(user.user_metadata.avatar_url);
+    setAvatar(user.user_metadata.avatar_url);
+    setName(user.user_metadata.full_name);
 
     const { data, error } = await supabase
       .from("users")
@@ -101,6 +108,14 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {avatar !== "" && (<Avatar className="h-20 w-20">
+                <img 
+                  src = {avatar}
+                />
+            </Avatar>)}
+            {name != "" && (<div className="space-y-2">
+              {name}
+            </div>)}
             <div className="space-y-2">
               <Input
                 placeholder="Username"
