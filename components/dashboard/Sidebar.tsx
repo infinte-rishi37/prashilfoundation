@@ -18,6 +18,7 @@ import { useState } from "react";
 import Image from "next/image";
 const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 import { supabase } from "@/lib/supabase";
+import ThemeToggle from "../ThemeToggle";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -100,6 +101,7 @@ export function Sidebar() {
             <LogOut className="mr-3 h-5 w-5" />
             Sign out
           </Button>
+          <ThemeToggle />
         </div>
       </div>
 
@@ -127,14 +129,17 @@ export function Sidebar() {
             <div className="flex-1 py-4">
               <NavContent />
             </div>
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={handleSignOut}
-            >
-              <LogOut className="mr-3 h-5 w-5" />
-              Sign out
-            </Button>
+            <div className="flex justify-between object-center">
+              <Button
+                variant="ghost"
+                className="justify-start"
+                onClick={handleSignOut}
+              >
+                <LogOut className="mr-3 h-5 w-5" />
+                Sign out
+              </Button>
+              <ThemeToggle />
+            </div>
           </div>
         </SheetContent>
       </Sheet>

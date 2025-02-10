@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
 import RootLayoutClient from "@/components/RootLayoutClient";
+import ThemeProvider from '@/components/ThemeProvider';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -25,10 +26,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} min-h-full flex flex-col`}>
-        <RootLayoutClient>
-          {children}
-        </RootLayoutClient>
-        <Toaster />
+        <ThemeProvider>
+          <RootLayoutClient>
+            {children}
+          </RootLayoutClient>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

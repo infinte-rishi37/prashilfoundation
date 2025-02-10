@@ -9,6 +9,7 @@ import { Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "./ThemeToggle";
 
 const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//logo.png";
 
@@ -113,6 +114,7 @@ export default function Header() {
                 </Link>
               </div>
             )}
+            <ThemeToggle />
           </nav>
 
           {/* Mobile Menu Button - Visible only on mobile */}
@@ -135,6 +137,7 @@ export default function Header() {
                   <span className="text-base font-bold ml-2 bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                     Prashil Foundation
                   </span>
+                  <ThemeToggle />
                 </div>
                 <nav className="flex flex-col space-y-2">
                   {menuItems.map((item) => (
