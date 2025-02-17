@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
-import { FileText, Mail, User, GraduationCap, BookOpen, PiggyBank } from "lucide-react";
+import { FileText, Mail, User, GraduationCap, BookOpen, PiggyBank, Loader2 } from "lucide-react";
 import { set } from "date-fns";
 
 type DashboardStats = {
@@ -49,6 +49,12 @@ export default function DashboardPage() {
             email: user.email,
             username: user.email?.split('@')[0] || `user_${Math.random().toString(36).slice(2, 7)}`,
           });
+          await supabase
+          .from('user_profile')
+          .insert({
+            id: user.id,
+            full_name: user.user_metadata.full_name,
+          });
       }
     };
 
@@ -57,8 +63,9 @@ export default function DashboardPage() {
 
 
   useEffect(() => {
-    setIsLoading(true);
+    
     const fetchStats = async () => {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -108,11 +115,19 @@ export default function DashboardPage() {
           finance: financeEnrollments.data?.length || 0
         }
       });
+      setIsLoading(false);
     };
 
     fetchStats();
-    setIsLoading(false);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
