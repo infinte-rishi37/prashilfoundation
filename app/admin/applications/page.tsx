@@ -34,7 +34,8 @@ export default function AdminApplicationsPage() {
       .from("applications")
       .select(`
         *,
-        user:users(email, username)
+        user:users(email, username),
+        user_profile:user_profiles(full_name, address, employment_type)
       `)
       .order("created_at", { ascending: false });
 
@@ -151,6 +152,9 @@ export default function AdminApplicationsPage() {
 
   const getServiceName = (application: Application) => {
     if (!application.service) return "Unknown Service";
+    if (application.service_type === "finance") {
+      return (application.service as FinanceService).serviceName;
+    }
     return application.service.name;
   };
 
@@ -166,7 +170,7 @@ export default function AdminApplicationsPage() {
         return eduguide.category.replace("_", " ").toUpperCase();
       case "finance":
         const finance = application.service as FinanceService;
-        return finance.type;
+        return finance.category.toUpperCase();
       default:
         return null;
     }
@@ -176,6 +180,7 @@ export default function AdminApplicationsPage() {
     const matchesSearch = 
       app.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.user_profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getServiceName(app).toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || app.status === statusFilter;
@@ -241,15 +246,30 @@ export default function AdminApplicationsPage() {
               <div className="flex justify-between items-start gap-2 flex-wrap">
                 <div>
                   <CardTitle>{getServiceName(application)}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Name: {application.user?.username}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Email: {application.user?.email}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Service Type: {application.service_type.toUpperCase()} - {getServiceDetails(application)}
-                  </p>
+                  <div className="space-y-1 mt-2">
+                    <p className="text-sm text-muted-foreground">
+                      Username: {application.user?.username}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Email: {application.user?.email}
+                    </p>
+                    {application.user_profile && (
+                      <>
+                        <p className="text-sm text-muted-foreground">
+                          Full Name: {application.user_profile.full_name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Address: {application.user_profile.address}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Employment: {application.user_profile.employment_type.replace('_', ' ').toUpperCase()}
+                        </p>
+                      </>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      Service Type: {application.service_type.toUpperCase()} - {getServiceDetails(application)}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Select
