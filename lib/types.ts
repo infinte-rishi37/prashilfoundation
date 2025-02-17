@@ -21,29 +21,12 @@ export type EduGuideService = {
   updated_at: string;
 };
 
-export type FinanceCategory = {
-  id: string;
-  name: string;
-  type: 'loan' | 'document';
-  description: string;
-  created_at: string;
-};
-
 export type FinanceService = {
-  type: any;
   id: string;
-  category_id: string;
-  name: string;
+  serviceName: string;
+  category: 'loan' | 'document';
   description: string;
-  min_amount?: number;
-  max_amount?: number;
-  interest_rate?: number;
-  processing_fee?: number;
-  duration?: string;
-  requirements: string[];
-  documents_required: string[];
   created_at: string;
-  updated_at: string;
 };
 
 export type UserProfile = {

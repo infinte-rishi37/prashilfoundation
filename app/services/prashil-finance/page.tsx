@@ -9,25 +9,12 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-type FinanceCategory = {
-  id: string;
-  name: string;
-  type: 'loan' | 'document';
-  description: string;
-};
-
 type FinanceService = {
   id: string;
-  category_id: string;
-  name: string;
+  serviceName: string;
+  category: 'loan' | 'document';
   description: string;
-  min_amount?: number;
-  max_amount?: number;
-  interest_rate?: number;
-  processing_fee?: number;
-  duration?: string;
-  requirements: string[];
-  documents_required: string[];
+  created_at: string;
 };
 
 const testimonials = [
@@ -73,7 +60,6 @@ const features = [
 ];
 
 export default function PrashilFinancePage() {
-  const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [services, setServices] = useState<FinanceService[]>([]);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
@@ -83,29 +69,26 @@ export default function PrashilFinancePage() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
 
-      const [categoriesRes, servicesRes] = await Promise.all([
-        supabase
-          .from('finance_categories')
-          .select('*')
-          .order('type', { ascending: true }),
-        supabase
-          .from('finance_services')
-          .select('*')
-          .order('name', { ascending: true })
-      ]);
+      const { data, error } = await supabase
+        .from('finance_services')
+        .select('*')
+        .order('serviceName', { ascending: true });
 
-      if (categoriesRes.data) setCategories(categoriesRes.data);
-      if (servicesRes.data) setServices(servicesRes.data);
+      if (error) {
+        console.error('Error fetching services:', error);
+        return;
+      }
+
+      setServices(data || []);
     };
 
     fetchData();
   }, []);
 
   const handleContactClick = (service: FinanceService) => {
-    const category = categories.find(c => c.id === service.category_id);
-    const phoneNumber = category?.type === 'loan' ? '917621071739' : '917061214923';
+    const phoneNumber = service.category === 'loan' ? '917621071739' : '917061214923';
     const message = encodeURIComponent(
-      `Hi, I am interested in the ${service.name} service. Could you please provide more information?`
+      `Hi, I am interested in the ${service.serviceName} service. Could you please provide more information?`
     );
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
@@ -118,13 +101,8 @@ export default function PrashilFinancePage() {
     router.push('/dashboard/applications');
   };
 
-  const loanServices = services.filter(s => 
-    categories.find(c => c.id === s.category_id)?.type === 'loan'
-  );
-
-  const documentServices = services.filter(s => 
-    categories.find(c => c.id === s.category_id)?.type === 'document'
-  );
+  const loanServices = services.filter(s => s.category === 'loan');
+  const documentServices = services.filter(s => s.category === 'document');
 
   return (
     <main className="min-h-screen bg-background">
@@ -173,46 +151,28 @@ export default function PrashilFinancePage() {
                 {loanServices.map((service) => (
                   <Card key={service.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <CardTitle>{service.name}</CardTitle>
+                      <CardTitle>{service.serviceName}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground mb-4">{service.description}</p>
-                      {service.min_amount && service.max_amount && (
-                        <div className="space-y-2 mb-4">
-                          <p className="text-sm">Amount Range: ₹{service.min_amount.toLocaleString()} - ₹{service.max_amount.toLocaleString()}</p>
-                          <p className="text-sm">Interest Rate: {service.interest_rate}%</p>
-                          <p className="text-sm">Processing Fee: {service.processing_fee}%</p>
-                          <p className="text-sm">Duration: {service.duration}</p>
-                        </div>
-                      )}
-                      <div className="space-y-4">
-                        <div className="text-sm">
-                          <p className="font-medium mb-1">Requirements:</p>
-                          <ul className="list-disc list-inside text-muted-foreground">
-                            {service.requirements.map((req, i) => (
-                              <li key={i}>{req}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex flex-col space-y-2">
+                      <div className="flex flex-col space-y-2">
+                        <Button 
+                          onClick={() => handleContactClick(service)}
+                          variant="outline"
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          Chat on WhatsApp
+                        </Button>
+                        {user && (
                           <Button 
-                            onClick={() => handleContactClick(service)}
-                            variant="outline"
+                            onClick={() => handleApply(service)}
                             className="flex items-center justify-center gap-2"
                           >
-                            <MessageCircle className="h-4 w-4" />
-                            Chat on WhatsApp
+                            <ArrowRight className="h-4 w-4" />
+                            Apply Now
                           </Button>
-                          {user && (
-                            <Button 
-                              onClick={() => handleApply(service)}
-                              className="flex items-center justify-center gap-2"
-                            >
-                              <ArrowRight className="h-4 w-4" />
-                              Apply Now
-                            </Button>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -225,38 +185,28 @@ export default function PrashilFinancePage() {
                 {documentServices.map((service) => (
                   <Card key={service.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <CardTitle>{service.name}</CardTitle>
+                      <CardTitle>{service.serviceName}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground mb-4">{service.description}</p>
-                      <div className="space-y-4">
-                        <div className="text-sm">
-                          <p className="font-medium mb-1">Required Documents:</p>
-                          <ul className="list-disc list-inside text-muted-foreground">
-                            {service.documents_required.map((doc, i) => (
-                              <li key={i}>{doc}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex flex-col space-y-2">
+                      <div className="flex flex-col space-y-2">
+                        <Button 
+                          onClick={() => handleContactClick(service)}
+                          variant="outline"
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          Chat on WhatsApp
+                        </Button>
+                        {user && (
                           <Button 
-                            onClick={() => handleContactClick(service)}
-                            variant="outline"
+                            onClick={() => handleApply(service)}
                             className="flex items-center justify-center gap-2"
                           >
-                            <MessageCircle className="h-4 w-4" />
-                            Chat on WhatsApp
+                            <ArrowRight className="h-4 w-4" />
+                            Apply Now
                           </Button>
-                          {user && (
-                            <Button 
-                              onClick={() => handleApply(service)}
-                              className="flex items-center justify-center gap-2"
-                            >
-                              <ArrowRight className="h-4 w-4" />
-                              Apply Now
-                            </Button>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

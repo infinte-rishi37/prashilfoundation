@@ -266,20 +266,18 @@ export default function ApplicationsModal({
             {filterItems(financeServices).map((service) => (
               <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <h4 className="font-medium">{service.name}</h4>
+                  <h4 className="font-medium">{service.serviceName}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {service.category.toUpperCase()}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {service.description}
                   </p>
-                  {service.min_amount && service.max_amount && (
-                    <span className="text-sm">
-                      ₹{service.min_amount.toLocaleString()} - ₹{service.max_amount.toLocaleString()}
-                    </span>
-                  )}
                 </div>
                 <ApplicationDialog
                   serviceId={service.id}
                   serviceType="finance"
-                  serviceName={service.name}
+                  serviceName={service.serviceName}
                 >
                   <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>

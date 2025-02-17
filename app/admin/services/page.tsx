@@ -39,26 +39,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Pencil, Trash, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-// Make most fields optional
-const serviceSchema = z.object({
+// Service schemas based on type
+const educareSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  category_id: z.string().min(1, "Category is required"),
-  min_amount: z.number().min(0).optional(),
-  max_amount: z.number().min(0).optional(),
-  interest_rate: z.number().min(0).optional(),
-  processing_fee: z.number().min(0).optional(),
-  duration: z.string().optional(),
-  requirements: z.array(z.string()),
-  documents_required: z.array(z.string())
+  type: z.enum(["Domestic", "Abroad"]),
+  mode: z.enum(["Online", "Offline"]),
+  fees: z.number().min(0, "Fees must be positive"),
+  start_date: z.string()
 });
 
-type ServiceForm = z.infer<typeof serviceSchema>;
+const eduguideSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
+  category: z.enum(["career_counselling", "college_admission"]),
+  fee: z.number().min(0, "Fee must be positive"),
+  min_students: z.number().optional(),
+  location: z.string().optional()
+});
+
+const financeSchema = z.object({
+  serviceName: z.string().min(1, "Name is required"),
+  category: z.enum(["loan", "document"]),
+  description: z.string().min(1, "Description is required")
+});
+
+type ServiceForm = z.infer<typeof educareSchema> | z.infer<typeof eduguideSchema> | z.infer<typeof financeSchema>;
 
 export default function ManageServicesPage() {
-  const [activeTab, setActiveTab] = useState("loan");
+  const [activeTab, setActiveTab] = useState("educare");
   const [services, setServices] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
   const [editingService, setEditingService] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState(false);
@@ -72,49 +81,43 @@ export default function ManageServicesPage() {
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ServiceForm>({
-    resolver: zodResolver(serviceSchema),
-    defaultValues: {
-      requirements: [],
-      documents_required: []
-    }
+    resolver: zodResolver(
+      activeTab === "educare" 
+        ? educareSchema 
+        : activeTab === "eduguide" 
+          ? eduguideSchema 
+          : financeSchema
+    )
   });
 
   const fetchServices = async () => {
     setContent(false);
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from('finance_categories')
-      .select('*')
-      .eq('type', activeTab)
-      .order('name');
+    let table = "";
+    switch (activeTab) {
+      case "educare":
+        table = "courses";
+        break;
+      case "eduguide":
+        table = "eduguide_services";
+        break;
+      case "finance":
+        table = "finance_services";
+        break;
+    }
 
-    if (categoriesError) {
-      console.error('Error fetching categories:', categoriesError);
+    const { data, error } = await supabase
+      .from(table)
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(`Error fetching ${activeTab} services:`, error);
       return;
     }
 
-    setCategories(categoriesData || []);
-
-    const { data: servicesData, error: servicesError } = await supabase
-      .from('finance_services')
-      .select(`
-        *,
-        category:finance_categories(*)
-      `)
-      .order('name');
-
-    if (servicesError) {
-      console.error('Error fetching services:', servicesError);
-      return;
-    }
-
-    const filteredServices = servicesData?.filter(
-      service => service.category.type === activeTab
-    ) || [];
-
-    setServices(filteredServices);
+    setServices(data || []);
     setContent(true);
   };
 
@@ -125,7 +128,6 @@ export default function ManageServicesPage() {
   const handleTabChange = (value: string) => {
     setEditingService(null);
     setActiveTab(value);
-    fetchServices();
     setSearchTerm("");
     reset();
   };
@@ -133,11 +135,17 @@ export default function ManageServicesPage() {
   const onSubmit = async (data: ServiceForm) => {
     setIsLoading(true);
     try {
+      const table = activeTab === "educare" 
+        ? "courses" 
+        : activeTab === "eduguide" 
+          ? "eduguide_services" 
+          : "finance_services";
+
       if (editingService) {
         const { error } = await supabase
-          .from('finance_services')
+          .from(table)
           .update(data)
-          .eq('id', editingService.id);
+          .eq("id", editingService.id);
 
         if (error) throw error;
 
@@ -147,7 +155,7 @@ export default function ManageServicesPage() {
         });
       } else {
         const { error } = await supabase
-          .from('finance_services')
+          .from(table)
           .insert([data]);
 
         if (error) throw error;
@@ -177,23 +185,38 @@ export default function ManageServicesPage() {
     setEditingService(service);
     setIsDialogOpen(true);
 
-    setValue("name", service.name);
-    setValue("description", service.description);
-    setValue("category_id", service.category_id);
-    setValue("min_amount", service.min_amount);
-    setValue("max_amount", service.max_amount);
-    setValue("interest_rate", service.interest_rate);
-    setValue("processing_fee", service.processing_fee);
-    setValue("duration", service.duration);
-    setValue("requirements", service.requirements);
-    setValue("documents_required", service.documents_required);
+    // Set form values based on service type
+    if (activeTab === "educare") {
+      setValue("name", service.name);
+      setValue("type", service.type);
+      setValue("mode", service.mode);
+      setValue("fees", service.fees);
+      setValue("start_date", service.start_date);
+    } else if (activeTab === "eduguide") {
+      setValue("name", service.name);
+      setValue("description", service.description);
+      setValue("category", service.category);
+      setValue("fee", service.fee);
+      setValue("min_students", service.min_students);
+      setValue("location", service.location);
+    } else {
+      setValue("serviceName", service.serviceName);
+      setValue("category", service.category);
+      setValue("description", service.description);
+    }
   };
 
   const handleDelete = async (id: string) => {
+    const table = activeTab === "educare" 
+      ? "courses" 
+      : activeTab === "eduguide" 
+        ? "eduguide_services" 
+        : "finance_services";
+
     const { error } = await supabase
-      .from('finance_services')
+      .from(table)
       .delete()
-      .eq('id', id);
+      .eq("id", id);
 
     if (error) {
       toast({
@@ -213,13 +236,10 @@ export default function ManageServicesPage() {
     await fetchServices();
   };
 
-  const filteredServices = services.filter((service) =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const selectedCategory = categories.find(
-    cat => cat.id === watch('category_id')
-  );
+  const filteredServices = services.filter(service => {
+    const searchField = activeTab === "finance" ? service.serviceName : service.name;
+    return searchField.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="space-y-4">
@@ -237,10 +257,11 @@ export default function ManageServicesPage() {
 
       <div className="space-y-4">
         <div className="flex items-center space-x-4 flex-wrap gap-2 h-20">
-          <Tabs defaultValue="loan" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="loan">Loan Services</TabsTrigger>
-              <TabsTrigger value="document">Document Services</TabsTrigger>
+          <Tabs defaultValue="educare" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="educare">Educare</TabsTrigger>
+              <TabsTrigger value="eduguide">EduGuide</TabsTrigger>
+              <TabsTrigger value="finance">Finance</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -259,83 +280,124 @@ export default function ManageServicesPage() {
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingService ? "Edit" : "Add New"} {activeTab === 'loan' ? 'Loan' : 'Document'} Service
+                {editingService ? "Edit" : "Add New"} {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Service
               </DialogTitle>
               <DialogDescription>
                 Fill in the service details below
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <Select
-                onValueChange={(value) => setValue("category_id", value)}
-                defaultValue={editingService?.category_id}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Input
-                placeholder="Service Name"
-                {...register("name")}
-                className={errors.name ? "border-destructive" : ""}
-              />
-
-              <Textarea
-                placeholder="Description"
-                {...register("description")}
-                className={errors.description ? "border-destructive" : ""}
-              />
-
-              {activeTab === 'loan' && (
+              {activeTab === "educare" && (
                 <>
                   <Input
-                    type="number"
-                    placeholder="Minimum Amount"
-                    {...register("min_amount", { valueAsNumber: true })}
+                    placeholder="Service Name"
+                    {...register("name")}
+                    className={errors.name ? "border-destructive" : ""}
                   />
+                  <Select
+                    onValueChange={(value) => setValue("type", value as "Domestic" | "Abroad")}
+                    defaultValue={editingService?.type}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Domestic">Domestic</SelectItem>
+                      <SelectItem value="Abroad">Abroad</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    onValueChange={(value) => setValue("mode", value as "Online" | "Offline")}
+                    defaultValue={editingService?.mode}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Online">Online</SelectItem>
+                      <SelectItem value="Offline">Offline</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="number"
-                    placeholder="Maximum Amount"
-                    {...register("max_amount", { valueAsNumber: true })}
+                    placeholder="Fees"
+                    {...register("fees", { valueAsNumber: true })}
                   />
                   <Input
-                    type="number"
-                    placeholder="Interest Rate (%)"
-                    {...register("interest_rate", { valueAsNumber: true })}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Processing Fee (%)"
-                    {...register("processing_fee", { valueAsNumber: true })}
-                  />
-                  <Input
-                    placeholder="Duration"
-                    {...register("duration")}
+                    type="date"
+                    placeholder="Start Date"
+                    {...register("start_date")}
                   />
                 </>
               )}
 
-              <Textarea
-                placeholder="Requirements (one per line)"
-                {...register("requirements")}
-                onChange={(e) => setValue("requirements", e.target.value.split('\n'))}
-                value={watch("requirements")?.join('\n')}
-              />
+              {activeTab === "eduguide" && (
+                <>
+                  <Input
+                    placeholder="Service Name"
+                    {...register("name")}
+                    className={errors.name ? "border-destructive" : ""}
+                  />
+                  <Textarea
+                    placeholder="Description"
+                    {...register("description")}
+                    className={errors.description ? "border-destructive" : ""}
+                  />
+                  <Select
+                    onValueChange={(value) => setValue("category", value as "career_counselling" | "college_admission")}
+                    defaultValue={editingService?.category}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="career_counselling">Career Counselling</SelectItem>
+                      <SelectItem value="college_admission">College Admission</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    placeholder="Fee"
+                    {...register("fee", { valueAsNumber: true })}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Minimum Students"
+                    {...register("min_students", { valueAsNumber: true })}
+                  />
+                  <Input
+                    placeholder="Location"
+                    {...register("location")}
+                  />
+                </>
+              )}
 
-              <Textarea
-                placeholder="Required Documents (one per line)"
-                {...register("documents_required")}
-                onChange={(e) => setValue("documents_required", e.target.value.split('\n'))}
-                value={watch("documents_required")?.join('\n')}
-              />
+              {activeTab === "finance" && (
+                <>
+                  <Input
+                    placeholder="Service Name"
+                    {...register("serviceName")}
+                    className={errors.serviceName ? "border-destructive" : ""}
+                  />
+                  <Select
+                    onValueChange={(value) => setValue("category", value as "loan" | "document")}
+                    defaultValue={editingService?.category}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="loan">Loan</SelectItem>
+                      <SelectItem value="document">Document</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Textarea
+                    placeholder="Description"
+                    {...register("description")}
+                    className={errors.description ? "border-destructive" : ""}
+                  />
+                </>
+              )}
 
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? "Saving..." : (editingService ? "Update" : "Create")}
@@ -348,7 +410,9 @@ export default function ManageServicesPage() {
           {content ? (filteredServices.map((service) => (
             <Card key={service.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl">{service.name}</CardTitle>
+                <CardTitle className="text-xl">
+                  {activeTab === "finance" ? service.serviceName : service.name}
+                </CardTitle>
                 <div className="flex space-x-2">
                   <Button
                     variant="outline"
@@ -384,78 +448,21 @@ export default function ManageServicesPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      CATEGORY
-                    </p>
-                    <p className="text-sm">
-                      {service.category.name}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      DESCRIPTION
-                    </p>
-                    <p className="text-sm">
-                      {service.description}
-                    </p>
-                  </div>
-                  {service.min_amount && (
-                    <>
-                      <div className="space-y-1">
+                  {Object.entries(service).map(([key, value]) => {
+                    if (key === "id" || key === "created_at" || key === "updated_at" || value === null) return null;
+                    return (
+                      <div key={key} className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">
-                          AMOUNT RANGE
+                          {key.replace(/_/g, " ").toUpperCase()}
                         </p>
                         <p className="text-sm">
-                          ₹{service.min_amount.toLocaleString()} - ₹{service.max_amount.toLocaleString()}
+                          {typeof value === "number"
+                            ? value.toLocaleString()
+                            : String(value)}
                         </p>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          INTEREST RATE
-                        </p>
-                        <p className="text-sm">
-                          {service.interest_rate}%
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          PROCESSING FEE
-                        </p>
-                        <p className="text-sm">
-                          {service.processing_fee}%
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          DURATION
-                        </p>
-                        <p className="text-sm">
-                          {service.duration}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      REQUIREMENTS
-                    </p>
-                    <ul className="text-sm list-disc list-inside">
-                      {service.requirements.map((req: string, i: number) => (
-                        <li key={i}>{req}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      REQUIRED DOCUMENTS
-                    </p>
-                    <ul className="text-sm list-disc list-inside">
-                      {service.documents_required.map((doc: string, i: number) => (
-                        <li key={i}>{doc}</li>
-                      ))}
-                    </ul>
-                  </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
