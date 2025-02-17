@@ -39,13 +39,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Pencil, Trash, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-// Service schemas based on type
+// Define individual schemas for each service type
 const educareSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.enum(["Domestic", "Abroad"]),
   mode: z.enum(["Online", "Offline"]),
   fees: z.number().min(0, "Fees must be positive"),
-  start_date: z.string()
+  start_date: z.string(),
 });
 
 const eduguideSchema = z.object({
@@ -54,16 +54,22 @@ const eduguideSchema = z.object({
   category: z.enum(["career_counselling", "college_admission"]),
   fee: z.number().min(0, "Fee must be positive"),
   min_students: z.number().optional(),
-  location: z.string().optional()
+  location: z.string().optional(),
 });
 
 const financeSchema = z.object({
-  serviceName: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Name is required"),
   category: z.enum(["loan", "document"]),
-  description: z.string().min(1, "Description is required")
+  description: z.string().min(1, "Description is required"),
 });
 
-type ServiceForm = z.infer<typeof educareSchema> | z.infer<typeof eduguideSchema> | z.infer<typeof financeSchema>;
+// Create types for each schema
+type EducareForm = z.infer<typeof educareSchema>;
+type EduguideForm = z.infer<typeof eduguideSchema>;
+type FinanceForm = z.infer<typeof financeSchema>;
+
+// The union type for our form
+type ServiceForm = EducareForm | EduguideForm | FinanceForm;
 
 export default function ManageServicesPage() {
   const [activeTab, setActiveTab] = useState("educare");
@@ -84,12 +90,12 @@ export default function ManageServicesPage() {
     formState: { errors },
   } = useForm<ServiceForm>({
     resolver: zodResolver(
-      activeTab === "educare" 
-        ? educareSchema 
-        : activeTab === "eduguide" 
-          ? eduguideSchema 
-          : financeSchema
-    )
+      activeTab === "educare"
+        ? educareSchema
+        : activeTab === "eduguide"
+        ? eduguideSchema
+        : financeSchema
+    ),
   });
 
   const fetchServices = async () => {
@@ -135,10 +141,11 @@ export default function ManageServicesPage() {
   const onSubmit = async (data: ServiceForm) => {
     setIsLoading(true);
     try {
-      const table = activeTab === "educare" 
-        ? "courses" 
-        : activeTab === "eduguide" 
-          ? "eduguide_services" 
+      const table =
+        activeTab === "educare"
+          ? "courses"
+          : activeTab === "eduguide"
+          ? "eduguide_services"
           : "finance_services";
 
       if (editingService) {
@@ -154,9 +161,7 @@ export default function ManageServicesPage() {
           description: "Service updated successfully.",
         });
       } else {
-        const { error } = await supabase
-          .from(table)
-          .insert([data]);
+        const { error } = await supabase.from(table).insert([data]);
 
         if (error) throw error;
 
@@ -200,23 +205,21 @@ export default function ManageServicesPage() {
       setValue("min_students", service.min_students);
       setValue("location", service.location);
     } else {
-      setValue("serviceName", service.serviceName);
+      setValue("name", service.name);
       setValue("category", service.category);
       setValue("description", service.description);
     }
   };
 
   const handleDelete = async (id: string) => {
-    const table = activeTab === "educare" 
-      ? "courses" 
-      : activeTab === "eduguide" 
-        ? "eduguide_services" 
+    const table =
+      activeTab === "educare"
+        ? "courses"
+        : activeTab === "eduguide"
+        ? "eduguide_services"
         : "finance_services";
 
-    const { error } = await supabase
-      .from(table)
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from(table).delete().eq("id", id);
 
     if (error) {
       toast({
@@ -236,8 +239,9 @@ export default function ManageServicesPage() {
     await fetchServices();
   };
 
-  const filteredServices = services.filter(service => {
-    const searchField = activeTab === "finance" ? service.serviceName : service.name;
+  const filteredServices = services.filter((service) => {
+    const searchField =
+      activeTab === "finance" ? (service.name ?? "") : (service.name ?? "");
     return searchField.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
@@ -245,11 +249,13 @@ export default function ManageServicesPage() {
     <div className="space-y-4">
       <div className="flex h-20 justify-between items-center">
         <h1 className="text-3xl font-bold">Manage Services</h1>
-        <Button onClick={() => {
-          setEditingService(null);
-          reset();
-          setIsDialogOpen(true);
-        }}>
+        <Button
+          onClick={() => {
+            setEditingService(null);
+            reset();
+            setIsDialogOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Service
         </Button>
@@ -257,7 +263,11 @@ export default function ManageServicesPage() {
 
       <div className="space-y-4">
         <div className="flex items-center space-x-4 flex-wrap gap-2 h-20">
-          <Tabs defaultValue="educare" className="flex-1 min-w-[250px]" onValueChange={handleTabChange}>
+          <Tabs
+            defaultValue="educare"
+            className="flex-1 min-w-[250px]"
+            onValueChange={handleTabChange}
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="educare">Educare</TabsTrigger>
               <TabsTrigger value="eduguide">EduGuide</TabsTrigger>
@@ -280,7 +290,12 @@ export default function ManageServicesPage() {
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingService ? "Edit" : "Add New"} {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Service
+                {editingService
+                  ? "Edit"
+                  : "Add New"}{" "}
+                {activeTab.charAt(0).toUpperCase() +
+                  activeTab.slice(1)}{" "}
+                Service
               </DialogTitle>
               <DialogDescription>
                 Fill in the service details below
@@ -292,10 +307,16 @@ export default function ManageServicesPage() {
                   <Input
                     placeholder="Service Name"
                     {...register("name")}
-                    className={errors.name ? "border-destructive" : ""}
+                    className={
+                      (errors as Partial<EducareForm>).name
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Select
-                    onValueChange={(value) => setValue("type", value as "Domestic" | "Abroad")}
+                    onValueChange={(value) =>
+                      setValue("type", value as "Domestic" | "Abroad")
+                    }
                     defaultValue={editingService?.type}
                   >
                     <SelectTrigger>
@@ -307,7 +328,9 @@ export default function ManageServicesPage() {
                     </SelectContent>
                   </Select>
                   <Select
-                    onValueChange={(value) => setValue("mode", value as "Online" | "Offline")}
+                    onValueChange={(value) =>
+                      setValue("mode", value as "Online" | "Offline")
+                    }
                     defaultValue={editingService?.mode}
                   >
                     <SelectTrigger>
@@ -322,11 +345,21 @@ export default function ManageServicesPage() {
                     type="number"
                     placeholder="Fees"
                     {...register("fees", { valueAsNumber: true })}
+                    className={
+                      (errors as Partial<EducareForm>).fees
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Input
                     type="date"
                     placeholder="Start Date"
                     {...register("start_date")}
+                    className={
+                      (errors as Partial<EducareForm>).start_date
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                 </>
               )}
@@ -336,39 +369,63 @@ export default function ManageServicesPage() {
                   <Input
                     placeholder="Service Name"
                     {...register("name")}
-                    className={errors.name ? "border-destructive" : ""}
+                    className={
+                      (errors as Partial<EduguideForm>).name
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Textarea
                     placeholder="Description"
                     {...register("description")}
-                    className={errors.description ? "border-destructive" : ""}
+                    className={
+                      (errors as Partial<EduguideForm>).description
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Select
-                    onValueChange={(value) => setValue("category", value as "career_counselling" | "college_admission")}
+                    onValueChange={(value) =>
+                      setValue(
+                        "category",
+                        value as "career_counselling" | "college_admission"
+                      )
+                    }
                     defaultValue={editingService?.category}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="career_counselling">Career Counselling</SelectItem>
-                      <SelectItem value="college_admission">College Admission</SelectItem>
+                      <SelectItem value="career_counselling">
+                        Career Counselling
+                      </SelectItem>
+                      <SelectItem value="college_admission">
+                        College Admission
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <Input
                     type="number"
                     placeholder="Fee"
                     {...register("fee", { valueAsNumber: true })}
+                    className={
+                      (errors as Partial<EduguideForm>).fee
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Input
                     type="number"
                     placeholder="Minimum Students"
                     {...register("min_students", { valueAsNumber: true })}
+                    className={
+                      (errors as Partial<EduguideForm>).min_students
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
-                  <Input
-                    placeholder="Location"
-                    {...register("location")}
-                  />
+                  <Input placeholder="Location" {...register("location")} />
                 </>
               )}
 
@@ -376,11 +433,17 @@ export default function ManageServicesPage() {
                 <>
                   <Input
                     placeholder="Service Name"
-                    {...register("serviceName")}
-                    className={errors.serviceName ? "border-destructive" : ""}
+                    {...register("name")}
+                    className={
+                      (errors as Partial<FinanceForm>).name
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                   <Select
-                    onValueChange={(value) => setValue("category", value as "loan" | "document")}
+                    onValueChange={(value) =>
+                      setValue("category", value as "loan" | "document")
+                    }
                     defaultValue={editingService?.category}
                   >
                     <SelectTrigger>
@@ -394,79 +457,91 @@ export default function ManageServicesPage() {
                   <Textarea
                     placeholder="Description"
                     {...register("description")}
-                    className={errors.description ? "border-destructive" : ""}
+                    className={
+                      (errors as Partial<FinanceForm>).description
+                        ? "border-destructive"
+                        : ""
+                    }
                   />
                 </>
               )}
 
               <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? "Saving..." : (editingService ? "Update" : "Create")}
+                {isLoading ? "Saving..." : editingService ? "Update" : "Create"}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
 
         <div className="grid gap-4 h-[calc(100vh-250px)] overflow-y-auto">
-          {content ? (filteredServices.map((service) => (
-            <Card key={service.id}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl">
-                  {activeTab === "finance" ? service.serviceName : service.name}
-                </CardTitle>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleEdit(service)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon">
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the service.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(service.id)}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  {Object.entries(service).map(([key, value]) => {
-                    if (key === "id" || key === "created_at" || key === "updated_at" || value === null) return null;
-                    return (
-                      <div key={key} className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          {key.replace(/_/g, " ").toUpperCase()}
-                        </p>
-                        <p className="text-sm">
-                          {typeof value === "number"
-                            ? value.toLocaleString()
-                            : String(value)}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))) : (
+          {content ? (
+            filteredServices.map((service) => (
+              <Card key={service.id}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xl">
+                    {activeTab === "finance" ? service.name : service.name}
+                  </CardTitle>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleEdit(service)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the service.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(service.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    {Object.entries(service).map(([key, value]) => {
+                      if (
+                        key === "id" ||
+                        key === "created_at" ||
+                        key === "updated_at" ||
+                        value === null
+                      )
+                        return null;
+                      return (
+                        <div key={key} className="space-y-1">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            {key.replace(/_/g, " ").toUpperCase()}
+                          </p>
+                          <p className="text-sm">
+                            {typeof value === "number"
+                              ? value.toLocaleString()
+                              : String(value)}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
             <div className="flex items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>

@@ -23,7 +23,7 @@ export type EduGuideService = {
 
 export type FinanceService = {
   id: string;
-  serviceName: string;
+  name: string;
   category: 'loan' | 'document';
   description: string;
   created_at: string;

@@ -154,7 +154,7 @@ export default function ApplicationsPage() {
         return eduguide.category.replace("_", " ").toUpperCase();
       case "finance":
         const finance = application.service as FinanceService;
-        return finance.type;
+        return finance.category.replace("_", " ").toUpperCase();
       default:
         return null;
     }

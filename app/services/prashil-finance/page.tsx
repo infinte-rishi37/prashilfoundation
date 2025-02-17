@@ -11,7 +11,7 @@ import Image from "next/image";
 
 type FinanceService = {
   id: string;
-  serviceName: string;
+  name: string;
   category: 'loan' | 'document';
   description: string;
   created_at: string;
@@ -72,7 +72,7 @@ export default function PrashilFinancePage() {
       const { data, error } = await supabase
         .from('finance_services')
         .select('*')
-        .order('serviceName', { ascending: true });
+        .order('name', { ascending: true });
 
       if (error) {
         console.error('Error fetching services:', error);
@@ -88,7 +88,7 @@ export default function PrashilFinancePage() {
   const handleContactClick = (service: FinanceService) => {
     const phoneNumber = service.category === 'loan' ? '917621071739' : '917061214923';
     const message = encodeURIComponent(
-      `Hi, I am interested in the ${service.serviceName} service. Could you please provide more information?`
+      `Hi, I am interested in the ${service.name} service. Could you please provide more information?`
     );
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
@@ -151,7 +151,7 @@ export default function PrashilFinancePage() {
                 {loanServices.map((service) => (
                   <Card key={service.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <CardTitle>{service.serviceName}</CardTitle>
+                      <CardTitle>{service.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground mb-4">{service.description}</p>
@@ -185,7 +185,7 @@ export default function PrashilFinancePage() {
                 {documentServices.map((service) => (
                   <Card key={service.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <CardTitle>{service.serviceName}</CardTitle>
+                      <CardTitle>{service.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground mb-4">{service.description}</p>
