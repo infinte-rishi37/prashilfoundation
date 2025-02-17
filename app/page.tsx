@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, PiggyBank, ArrowRight, Users, Trophy, Star } from "lucide-react";
+import { GraduationCap, BookOpen, PiggyBank, ArrowRight, Users, Trophy, Star, Target, Heart } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import FAQ from "@/components/FAQ";
 import { Yatra_One } from "next/font/google";
@@ -20,21 +22,21 @@ const yatra = Yatra_One({
 const services = [
   {
     title: "Prashil Educare",
-    description: "Expert guidance for academic excellence and skill development",
+    description: "Your Gateway to Academic Excellence. Expert guidance for academic excellence through personalized coaching and innovative teaching methods.",
     icon: GraduationCap,
     email: "educare@prashilfoundation.com",
     href: "/services/prashil-educare"
   },
   {
     title: "Prashil EduGuide",
-    description: "Professional counselling for career path and academic decisions",
+    description: "Your Career, Our Mission. Comprehensive career counselling combining advanced software with personalized guidance for informed decisions.",
     icon: BookOpen,
     email: "eduguide@prashilfoundation.com",
     href: "/services/prashil-eduguide"
   },
   {
     title: "Prashil Finance",
-    description: "Comprehensive financial guidance for education loans",
+    description: "Simplifying Your Financial World. One-stop solution for education loans, tax filings, and essential government documentation services.",
     icon: PiggyBank,
     email: "finance@prashilfoundation.com",
     href: "/services/prashil-finance"
@@ -46,6 +48,29 @@ const stats = [
   { number: "95%", label: "Success Rate" },
   { number: "100+", label: "Partner Institutions" },
   { number: "10+", label: "Years Experience" }
+];
+
+const features = [
+  {
+    icon: Target,
+    title: "Holistic Approach",
+    description: "Comprehensive solutions covering education, career, and finance under one roof"
+  },
+  {
+    icon: Users,
+    title: "Expert Guidance",
+    description: "Qualified professionals with years of experience in their respective fields"
+  },
+  {
+    icon: Trophy,
+    title: "Proven Track Record",
+    description: "Consistent success in helping students achieve their goals"
+  },
+  {
+    icon: Heart,
+    title: "Student-First Approach",
+    description: "Personalized attention and care for every individual's unique needs"
+  }
 ];
 
 const testimonials = [
@@ -73,7 +98,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20 py-9">
+      <section className="relative flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20 py-20">
         <div className="container text-center">
           <Image
             src={logo}
@@ -89,9 +114,14 @@ export default function Home() {
           <p className={`${yatra.className} text-3xl md:text-4xl mb-8 text-muted-foreground`}>
             श्रद्धावान् लभते ज्ञानम्
           </p>
-          <Button size="lg" className="mr-4 bg-primary text-primary-foreground hover:bg-primary/90">
-            Get Started <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            At Prashil Foundation, we bridge the gap between knowledge and opportunity, empowering individuals to unlock their full potential through comprehensive education, career guidance, and financial support.
+          </p>
+          <Link href="/auth/sign-up">
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              Get Started <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -139,26 +169,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
+      {/* Features Section */}
       <section className="py-20 bg-secondary/5">
         <div className="container px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
-              <h3 className="text-xl font-bold mb-2">Expert Guidance</h3>
-              <p className="text-muted-foreground">Experienced mentors dedicated to your success</p>
-            </div>
-            <div className="text-center">
-              <Trophy className="h-12 w-12 mx-auto mb-4 text-primary" />
-              <h3 className="text-xl font-bold mb-2">Proven Track Record</h3>
-              <p className="text-muted-foreground">Consistent success in student placements</p>
-            </div>
-            <div className="text-center">
-              <Star className="h-12 w-12 mx-auto mb-4 text-primary" />
-              <h3 className="text-xl font-bold mb-2">Personalized Approach</h3>
-              <p className="text-muted-foreground">Tailored solutions for every student</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature) => (
+              <Card key={feature.title} className="text-center">
+                <CardContent className="pt-6">
+                  <feature.icon className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -166,7 +190,7 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="py-20">
         <div className="container px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Student Success Stories</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial) => (
               <Card key={testimonial.name} className="text-center">
@@ -203,7 +227,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </main>
   );
 }

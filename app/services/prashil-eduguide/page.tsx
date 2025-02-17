@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, CheckCircle, ArrowRight, Star, MessageCircle } from "lucide-react";
+import { BookOpen, CheckCircle, ArrowRight, Star, MessageCircle, Target, Users, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
@@ -17,6 +17,31 @@ type EduGuideService = {
   min_students?: number;
   location?: string;
 };
+
+const features = [
+  {
+    icon: Target,
+    title: "Career Assessment",
+    description: "Advanced psychometric tools to identify your strengths and interests"
+  },
+  {
+    icon: Users,
+    title: "Expert Counsellors",
+    description: "Experienced professionals to guide your career journey"
+  },
+  {
+    icon: Lightbulb,
+    title: "Personalized Guidance",
+    description: "Tailored advice based on your unique profile and goals"
+  }
+];
+
+const stats = [
+  { number: "10K+", label: "Students Guided" },
+  { number: "95%", label: "Success Rate" },
+  { number: "50+", label: "Partner Universities" },
+  { number: "100%", label: "Satisfaction Rate" }
+];
 
 const testimonials = [
   {
@@ -97,8 +122,40 @@ export default function PrashilEduGuidePage() {
             Prashil EduGuide
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Professional counselling for career path and academic decisions
+            Your Career, Our Mission
           </p>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20">
+        <div className="container px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl font-bold text-primary mb-2">{stat.number}</p>
+                <p className="text-muted-foreground">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-secondary/5">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature) => (
+              <Card key={feature.title} className="text-center">
+                <CardContent className="pt-6">
+                  <feature.icon className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { GraduationCap, CheckCircle, ArrowRight, Star, MessageCircle } from "lucide-react";
+import { GraduationCap, CheckCircle, ArrowRight, Star, MessageCircle, Book, Users, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase, type Course } from '@/lib/supabase';
@@ -16,12 +16,21 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const features = [
-  "Personalized learning plans",
-  "Expert subject matter tutors",
-  "Regular progress tracking",
-  "Practice tests and assessments",
-  "Study material and resources",
-  "Flexible scheduling options"
+  {
+    icon: Book,
+    title: "Expert Faculty",
+    description: "Learn from experienced educators with proven track records"
+  },
+  {
+    icon: Users,
+    title: "Small Batch Sizes",
+    description: "Personalized attention in optimally sized groups"
+  },
+  {
+    icon: Target,
+    title: "Goal-Oriented",
+    description: "Focused preparation for your specific academic goals"
+  }
 ];
 
 const testimonials = [
@@ -46,6 +55,13 @@ const testimonials = [
     quote: "The coaching program helped me score 99.5 percentile in CAT. The strategy sessions were particularly helpful.",
     rating: 5
   }
+];
+
+const stats = [
+  { number: "95%", label: "Success Rate" },
+  { number: "10K+", label: "Students Guided" },
+  { number: "100+", label: "Expert Faculty" },
+  { number: "50+", label: "Test Series" }
 ];
 
 export default function PrashilEducarePage() {
@@ -108,28 +124,45 @@ export default function PrashilEducarePage() {
             Prashil Educare
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Expert guidance for academic excellence and skill development
+            Your Gateway to Academic Excellence
           </p>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Stats Section */}
       <section className="py-20">
         <div className="container px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">What We Offer</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <div key={feature} className="flex items-start space-x-3">
-                <CheckCircle className="h-6 w-6 text-primary shrink-0" />
-                <p className="text-lg">{feature}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl font-bold text-primary mb-2">{stat.number}</p>
+                <p className="text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Courses Section */}
+      {/* Features Section */}
       <section className="py-20 bg-secondary/5">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature) => (
+              <Card key={feature.title} className="text-center">
+                <CardContent className="pt-6">
+                  <feature.icon className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Courses Section */}
+      <section className="py-20">
         <div className="container px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Our Courses</h2>
 
@@ -231,7 +264,7 @@ export default function PrashilEducarePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20">
+      <section className="py-20 bg-secondary/5">
         <div className="container px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
