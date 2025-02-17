@@ -30,6 +30,7 @@ export type FinanceCategory = {
 };
 
 export type FinanceService = {
+  type: any;
   id: string;
   category_id: string;
   name: string;

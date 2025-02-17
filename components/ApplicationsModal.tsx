@@ -271,9 +271,9 @@ export default function ApplicationsModal({
                     {service.description}
                   </p>
                   {service.min_amount && service.max_amount && (
-                    <p className="text-sm">
+                    <span className="text-sm">
                       ₹{service.min_amount.toLocaleString()} - ₹{service.max_amount.toLocaleString()}
-                    </p>
+                    </span>
                   )}
                 </div>
                 <ApplicationDialog

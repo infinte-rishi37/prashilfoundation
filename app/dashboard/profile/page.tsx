@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/avatar";
+import { Loader2 } from "lucide-react";
 
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -42,6 +43,7 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -51,6 +53,7 @@ export default function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
+    setAvatar(user.user_metadata.avatar_url || "");
     setAvatar(user.user_metadata.avatar_url || "");
     setName(user.user_metadata.full_name || "");
 
@@ -73,7 +76,7 @@ export default function ProfilePage() {
     }
 
     if (profileData.data) {
-      setValue("full_name", profileData.data.full_name);
+      setValue("full_name", profileData.data.full_name || name);
       setValue("address", profileData.data.address);
       setValue("employment_type", profileData.data.employment_type);
     }
@@ -101,7 +104,7 @@ export default function ProfilePage() {
           .from("user_profiles")
           .upsert({
             id: user.id,
-            full_name: data.full_name,
+            full_name: data.full_name || name,
             address: data.address,
             employment_type: data.employment_type
           })
@@ -124,8 +127,17 @@ export default function ProfilePage() {
         variant: "destructive",
       });
     }
+    fetchProfile();
     setIsLoading(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -191,7 +203,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Select
                 onValueChange={(value) => setValue("employment_type", value as any)}
-                defaultValue={undefined}
+                value={watch("employment_type") || ""}
               >
                 <SelectTrigger className={errors.employment_type ? "border-destructive" : ""}>
                   <SelectValue placeholder="Employment Type" />

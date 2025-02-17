@@ -235,9 +235,9 @@ export default function ApplicationsPage() {
                     <p className="font-medium mb-2">Admin Response:</p>
                     <p className="text-sm text-muted-foreground">{application.admin_response}</p>
                     {application.responded_at && (
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <span className="text-xs text-muted-foreground mt-2">
                         Responded on {new Date(application.responded_at).toLocaleDateString()}
-                      </p>
+                      </span>
                     )}
                   </div>
                 )}
