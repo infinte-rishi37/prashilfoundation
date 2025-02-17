@@ -29,14 +29,14 @@ import { useRouter } from "next/navigation";
 type ApplicationDialogProps = {
   serviceId: string;
   serviceType: ServiceType;
-  serviceName: string;
+  name: string;
   children: React.ReactNode;
 };
 
 export default function ApplicationDialog({
   serviceId,
   serviceType,
-  serviceName,
+  name,
   children
 }: ApplicationDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -106,7 +106,7 @@ export default function ApplicationDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Apply for {serviceName}</DialogTitle>
+          <DialogTitle>Apply for {name}</DialogTitle>
           <DialogDescription>
             Would you like to apply for this service? You can track your application status in your dashboard.
             {serviceType === 'finance' && (
@@ -124,7 +124,7 @@ export default function ApplicationDialog({
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Application</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to apply for {serviceName}? This will create a new application that you can track in your dashboard.
+                Are you sure you want to apply for {name}? This will create a new application that you can track in your dashboard.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

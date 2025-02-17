@@ -223,7 +223,7 @@ export default function ApplicationsModal({
                 <ApplicationDialog
                   serviceId={course.id}
                   serviceType="educare"
-                  serviceName={course.name}
+                  name={course.name}
                 >
                   <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
@@ -249,7 +249,7 @@ export default function ApplicationsModal({
                 <ApplicationDialog
                   serviceId={service.id}
                   serviceType="eduguide"
-                  serviceName={service.name}
+                  name={service.name}
                 >
                   <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
@@ -266,7 +266,7 @@ export default function ApplicationsModal({
             {filterItems(financeServices).map((service) => (
               <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <h4 className="font-medium">{service.serviceName}</h4>
+                  <h4 className="font-medium">{service.name}</h4>
                   <p className="text-sm text-muted-foreground">
                     {service.category.toUpperCase()}
                   </p>
@@ -277,7 +277,7 @@ export default function ApplicationsModal({
                 <ApplicationDialog
                   serviceId={service.id}
                   serviceType="finance"
-                  serviceName={service.serviceName}
+                  name={service.name}
                 >
                   <Button onClick={() => setIsOpen(true)}>Apply</Button>
                 </ApplicationDialog>
