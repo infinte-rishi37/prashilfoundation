@@ -53,5 +53,10 @@ export type Application = {
     email: string;
     username: string;
   };
+  user_profile: {
+    full_name: string;
+    address: string;
+    employment_type: 'salaried' | 'business' | 'self_employed';
+  }
   service: Course | EduGuideService | FinanceService;
 };

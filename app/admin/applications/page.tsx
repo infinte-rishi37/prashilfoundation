@@ -34,7 +34,8 @@ export default function AdminApplicationsPage() {
       .from("applications")
       .select(`
         *,
-        user:users(email, username, id)
+        user:users(email, username),
+        user_profile:user_profiles(full_name, address, employment_type)
       `)
       .order("created_at", { ascending: false });
     
@@ -48,7 +49,7 @@ export default function AdminApplicationsPage() {
       });
       return;
     }
-    console.log(data);
+    
     // Fetch service details for each application
     const applicationsWithServices = await Promise.all(
       (data || []).map(async (app) => {
@@ -176,6 +177,9 @@ export default function AdminApplicationsPage() {
     const matchesSearch = 
       app.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.user_profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.user_profile?.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.service_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getServiceName(app).toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || app.status === statusFilter;
@@ -241,14 +245,11 @@ export default function AdminApplicationsPage() {
               <div className="flex justify-between items-start gap-2 flex-wrap">
                 <div>
                   <CardTitle>{getServiceName(application)}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Name: {application.user?.username}
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Service Type: <b>{application.service_type.toUpperCase()} - {getServiceDetails(application)}</b>
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Email: {application.user?.email}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Service Type: {application.service_type.toUpperCase()} - {getServiceDetails(application)}
+                    Applied on <b> {new Date(application.created_at).toLocaleDateString()} </b>
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -278,9 +279,18 @@ export default function AdminApplicationsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Applied on {new Date(application.created_at).toLocaleDateString()}
+              <div className="padding-y-4 overflow-scroll">
+                <p className="text-xs text-muted-foreground mt-2 whitespace-pre">
+                  Name: {"\t\t\t\t\t\t"} {application.user_profile?.full_name}
+                </p>
+                <p className="text-xs text-muted-foreground whitespace-pre">
+                  Email: {"\t\t\t\t\t\t"} {application.user?.email}
+                </p>
+                <p className="text-xs text-muted-foreground whitespace-pre">
+                  Employment type: {"\t"} {application.user_profile?.employment_type.toUpperCase()}
+                </p>
+                <p className="text-xs text-muted-foreground mb-4 whitespace-pre">
+                  Address: {"\t\t\t\t\t"} {application.user_profile?.address}
                 </p>
 
                 {application.admin_response ? (
