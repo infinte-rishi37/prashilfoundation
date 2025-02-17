@@ -15,21 +15,42 @@ const logo = "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session: any) => {
-      setUser(session?.user || null);
-      supabase
-        .from("admin_users")
-        .select()
-        .eq("id", session?.user?.id)
-        .single()
-        .then(({ data: adminUser }) => {
-          setIsAdmin(!!adminUser);
-        });
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select()
+          .eq("id", session.user.id)
+          .single();
+        setIsAdmin(!!adminUser);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select()
+          .eq("id", session.user.id)
+          .single();
+        setIsAdmin(!!adminUser);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
     });
 
     return () => {

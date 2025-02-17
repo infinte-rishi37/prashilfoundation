@@ -16,6 +16,7 @@ const yatra = Yatra_One({
   subsets: ['latin', 'devanagari'],
   preload: true,
   display: 'swap',
+  variable: '--font-yatra',
   fallback: ['system-ui', 'serif']
 });
 
