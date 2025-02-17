@@ -51,6 +51,25 @@ export default function ApplicationDialog({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Check if user profile exists for finance services
+      if (serviceType === 'finance') {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile) {
+          toast({
+            title: "Profile Required",
+            description: "Please complete your profile before applying for financial services.",
+            variant: "destructive",
+          });
+          router.push('/dashboard/profile');
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from('applications')
         .insert({
@@ -90,6 +109,11 @@ export default function ApplicationDialog({
           <DialogTitle>Apply for {serviceName}</DialogTitle>
           <DialogDescription>
             Would you like to apply for this service? You can track your application status in your dashboard.
+            {serviceType === 'finance' && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Note: You need to complete your profile with employment details before applying for financial services.
+              </p>
+            )}
           </DialogDescription>
         </DialogHeader>
         <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>

@@ -21,16 +21,35 @@ export type EduGuideService = {
   updated_at: string;
 };
 
-export type FinanceService = {
+export type FinanceCategory = {
   id: string;
   name: string;
+  type: 'loan' | 'document';
   description: string;
-  type: 'Domestic' | 'Abroad';
-  min_amount: number;
-  max_amount: number;
-  interest_rate: number;
-  processing_fee: number;
-  duration: string;
+  created_at: string;
+};
+
+export type FinanceService = {
+  id: string;
+  category_id: string;
+  name: string;
+  description: string;
+  min_amount?: number;
+  max_amount?: number;
+  interest_rate?: number;
+  processing_fee?: number;
+  duration?: string;
+  requirements: string[];
+  documents_required: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserProfile = {
+  id: string;
+  full_name: string;
+  address: string;
+  employment_type: 'salaried' | 'business' | 'self_employed';
   created_at: string;
   updated_at: string;
 };
@@ -40,7 +59,7 @@ export type ServiceType = 'educare' | 'eduguide' | 'finance';
 export type Application = {
   id: string;
   user_id: string;
-  service_type: "educare" | "eduguide" | "finance";
+  service_type: ServiceType;
   service_id: string;
   status: "pending" | "approved" | "rejected";
   admin_response: string | null;

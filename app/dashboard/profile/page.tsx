@@ -7,6 +7,13 @@ import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -15,6 +22,11 @@ import { Avatar } from "@/components/ui/avatar";
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
+  full_name: z.string().min(2, "Full name is required"),
+  address: z.string().min(5, "Address is required"),
+  employment_type: z.enum(["salaried", "business", "self_employed"], {
+    required_error: "Employment type is required",
+  }),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -38,25 +50,32 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    console.log(user.user_metadata);
-    setAvatar(user.user_metadata.avatar_url);
-    setAvatar(user.user_metadata.avatar_url);
-    setName(user.user_metadata.full_name);
+    
+    setAvatar(user.user_metadata.avatar_url || "");
+    setName(user.user_metadata.full_name || "");
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+    const [userData, profileData] = await Promise.all([
+      supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+    ]);
 
-    if (error) {
-      console.error("Error fetching profile:", error);
-      return;
+    if (userData.data) {
+      setValue("username", userData.data.username);
+      setValue("email", userData.data.email);
     }
 
-    if (data) {
-      setValue("username", data.username);
-      setValue("email", data.email);
+    if (profileData.data) {
+      setValue("full_name", profileData.data.full_name);
+      setValue("address", profileData.data.address);
+      setValue("employment_type", profileData.data.employment_type);
     }
   };
 
@@ -70,25 +89,35 @@ export default function ProfilePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error } = await supabase
-        .from("users")
-        .update({
-          username: data.username,
-          email: data.email,
-        })
-        .eq("id", user.id);
+      const [userUpdate, profileUpdate] = await Promise.all([
+        supabase
+          .from("users")
+          .update({
+            username: data.username,
+            email: data.email,
+          })
+          .eq("id", user.id),
+        supabase
+          .from("user_profiles")
+          .upsert({
+            id: user.id,
+            full_name: data.full_name,
+            address: data.address,
+            employment_type: data.employment_type
+          })
+      ]);
 
-      if (error) throw error;
+      if (userUpdate.error) throw userUpdate.error;
+      if (profileUpdate.error) throw profileUpdate.error;
 
       toast({
         title: "Success!",
         description: "Your profile has been updated.",
       });
 
-      // Refresh data
       router.refresh();
-      fetchProfile(); // Add this function to refetch data
-    } catch (error) {
+      fetchProfile();
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
@@ -108,14 +137,12 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {avatar !== "" && (<Avatar className="h-20 w-20">
-                <img 
-                  src = {avatar}
-                />
-            </Avatar>)}
-            {name != "" && (<div className="space-y-2">
-              {name}
-            </div>)}
+            {avatar && (
+              <Avatar className="h-20 w-20">
+                <img src={avatar} alt="Profile" />
+              </Avatar>
+            )}
+            
             <div className="space-y-2">
               <Input
                 placeholder="Username"
@@ -136,6 +163,47 @@ export default function ProfilePage() {
               />
               {errors.email && (
                 <p className="text-sm text-destructive">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                placeholder="Full Name"
+                {...register("full_name")}
+                className={errors.full_name ? "border-destructive" : ""}
+              />
+              {errors.full_name && (
+                <p className="text-sm text-destructive">{errors.full_name.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                placeholder="Address"
+                {...register("address")}
+                className={errors.address ? "border-destructive" : ""}
+              />
+              {errors.address && (
+                <p className="text-sm text-destructive">{errors.address.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Select
+                onValueChange={(value) => setValue("employment_type", value as any)}
+                defaultValue={undefined}
+              >
+                <SelectTrigger className={errors.employment_type ? "border-destructive" : ""}>
+                  <SelectValue placeholder="Employment Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="salaried">Salaried</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="self_employed">Self Employed</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.employment_type && (
+                <p className="text-sm text-destructive">{errors.employment_type.message}</p>
               )}
             </div>
 
