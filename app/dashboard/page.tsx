@@ -34,7 +34,7 @@ export default function DashboardPage() {
     const addUserIfNotExists = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
+      
       const { data: existingUser } = await supabase
         .from("users")
         .select("*")
@@ -42,19 +42,11 @@ export default function DashboardPage() {
         .single();
       
       if (existingUser === null) {
-        await supabase
-          .from('users')
-          .insert({
-            id: user.id,
-            email: user.email,
-            username: user.email?.split('@')[0] || `user_${Math.random().toString(36).slice(2, 7)}`,
-          });
-          await supabase
-          .from('user_profile')
-          .insert({
-            id: user.id,
-            full_name: user.user_metadata.full_name,
-          });
+        await supabase.rpc('insert_user_and_profile', {
+          user_id: user.id,
+          user_email: user.email,
+          full_name: user.user_metadata.full_name
+        });
       }
     };
 

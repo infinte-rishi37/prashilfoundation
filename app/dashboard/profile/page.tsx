@@ -36,7 +36,6 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [avatar, setAvatar] = useState("");
-  const [name, setName] = useState("");
   const router = useRouter();
 
   const {
@@ -50,12 +49,12 @@ export default function ProfilePage() {
   });
 
   const fetchProfile = async () => {
+    setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
     setAvatar(user.user_metadata.avatar_url || "");
     setAvatar(user.user_metadata.avatar_url || "");
-    setName(user.user_metadata.full_name || "");
 
     const [userData, profileData] = await Promise.all([
       supabase
@@ -76,10 +75,12 @@ export default function ProfilePage() {
     }
 
     if (profileData.data) {
-      setValue("full_name", profileData.data.full_name || name);
+      setValue("full_name", profileData.data.full_name || user.user_metadata.full_name);
       setValue("address", profileData.data.address);
       setValue("employment_type", profileData.data.employment_type);
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -102,9 +103,8 @@ export default function ProfilePage() {
           .eq("id", user.id),
         supabase
           .from("user_profiles")
-          .upsert({
-            id: user.id,
-            full_name: data.full_name || name,
+          .update({
+            full_name: data.full_name || user.user_metadata.full_name,
             address: data.address,
             employment_type: data.employment_type
           })
