@@ -104,10 +104,11 @@ export default function ProfilePage() {
         supabase
           .from("user_profiles")
           .update({
-            full_name: data.full_name || user.user_metadata.full_name,
+            full_name: data.full_name,
             address: data.address,
             employment_type: data.employment_type
           })
+          .eq("id", user.id),
       ]);
 
       if (userUpdate.error) throw userUpdate.error;
