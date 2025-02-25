@@ -124,7 +124,7 @@ export default function PrashilEducarePage() {
             Prashil Educare
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your Gateway to Academic Excellence
+          Expert coaching for STET, CTET, Hindi NET/JRF, BPSSC, and other competitive exams. We also offer training for IELTS, GRE, TOEFL, English speaking, and personality development.
           </p>
         </div>
       </section>

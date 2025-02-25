@@ -122,7 +122,7 @@ export default function PrashilEduGuidePage() {
             Prashil EduGuide
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your Career, Our Mission
+          Career counseling using advanced human and AI-based methods, helping students choose the right career path and secure admissions in India and abroad.
           </p>
         </div>
       </section>

@@ -23,21 +23,21 @@ const yatra = Yatra_One({
 const services = [
   {
     title: "Prashil Educare",
-    description: "Your Gateway to Academic Excellence. Expert guidance for academic excellence through personalized coaching and innovative teaching methods.",
+    description: "Expert coaching for STET, CTET, Hindi NET/JRF, BPSSC, and other competitive exams. We also offer training for IELTS, GRE, TOEFL, English speaking, and personality development.",
     icon: GraduationCap,
     email: "educare@prashilfoundation.com",
     href: "/services/prashil-educare"
   },
   {
     title: "Prashil EduGuide",
-    description: "Your Career, Our Mission. Comprehensive career counselling combining advanced software with personalized guidance for informed decisions.",
+    description: "Career counseling using advanced human and AI-based methods, helping students choose the right career path and secure admissions in India and abroad.",
     icon: BookOpen,
     email: "eduguide@prashilfoundation.com",
     href: "/services/prashil-eduguide"
   },
   {
     title: "Prashil Finance",
-    description: "Simplifying Your Financial World. One-stop solution for education loans, tax filings, and essential government documentation services.",
+    description: "Comprehensive financial solutions, including home loans, mortgage loans, education loans, and government-sponsored schemes. We also assist with essential documents like GST, PAN Card, and Aadhaar Card.",
     icon: PiggyBank,
     email: "finance@prashilfoundation.com",
     href: "/services/prashil-finance"

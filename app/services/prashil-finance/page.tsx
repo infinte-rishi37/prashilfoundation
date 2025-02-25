@@ -114,7 +114,7 @@ export default function PrashilFinancePage() {
             Prashil Finance
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive financial and documentation services
+          Comprehensive financial solutions, including home loans, mortgage loans, education loans, and government-sponsored schemes. We also assist with essential documents like GST, PAN Card, and Aadhaar Card.
           </p>
         </div>
       </section>
