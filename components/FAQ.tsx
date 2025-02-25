@@ -1,34 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { supabase } from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
 
-const faqs = [
-  {
-    question: "What services does Prashil Foundation offer?",
-    answer: "We offer education coaching, education counselling, and loan consultancy services to help students achieve their academic and career goals."
-  },
-  {
-    question: "How can I apply for education coaching?",
-    answer: "You can apply for education coaching by creating an account, browsing our available courses, and submitting an application through our website."
-  },
-  {
-    question: "What types of loans do you provide consultation for?",
-    answer: "We provide consultation for education loans, including both domestic and international study programs. Our experts help you understand different loan options and guide you through the application process."
-  },
-  {
-    question: "Do you offer online counselling sessions?",
-    answer: "Yes, we offer both online and in-person counselling sessions. You can choose the format that works best for you when scheduling a session."
-  },
-  {
-    question: "How long does the application process take?",
-    answer: "The application process typically takes 2-3 business days. We'll keep you updated on the status of your application through your dashboard."
+type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  order: number;
+};
+
+type FAQProps = {
+  section: 'home' | 'educare' | 'eduguide' | 'finance' | 'support';
+};
+
+export default function FAQ({ section }: FAQProps) {
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .eq('section', section)
+        .order('order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching FAQs:', error);
+        return;
+      }
+
+      setFaqs(data || []);
+      setIsLoading(false);
+    };
+
+    fetchFaqs();
+  }, [section]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
-];
 
-export default function FAQ() {
+  if (faqs.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-20 bg-secondary/5">
       <div className="container px-4">
@@ -37,8 +65,8 @@ export default function FAQ() {
         </h2>
         <div className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.id} value={faq.id}>
                 <AccordionTrigger>{faq.question}</AccordionTrigger>
                 <AccordionContent>{faq.answer}</AccordionContent>
               </AccordionItem>

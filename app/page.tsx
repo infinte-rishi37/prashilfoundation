@@ -37,7 +37,7 @@ const services = [
   },
   {
     title: "Prashil Finance",
-    description: "Comprehensive financial solutions, including home loans, mortgage loans, education loans, and government-sponsored schemes. We also assist with essential documents like GST, PAN Card, and Aadhaar Card.",
+    description: "Comprehensive financial solutions, including home loans, mortgage loans, education loans, and government-sponsored schemes. We also assist with essential documents like GST, PAN Card, and Aadhaar Card.",
     icon: PiggyBank,
     email: "finance@prashilfoundation.com",
     href: "/services/prashil-finance"
@@ -215,7 +215,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <FAQ />
+      <FAQ section="home" />
 
       {/* Contact Form Section */}
       <section className="py-20">

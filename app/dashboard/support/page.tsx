@@ -8,14 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import FAQ from "@/components/FAQ";
 
 const supportSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -23,21 +18,6 @@ const supportSchema = z.object({
 });
 
 type SupportForm = z.infer<typeof supportSchema>;
-
-const faqs = [
-  {
-    question: "How do I track my application status?",
-    answer: "You can track your application status in the Applications section of your dashboard. Each application will show its current status and progress."
-  },
-  {
-    question: "How can I update my profile information?",
-    answer: "Go to the Profile section in your dashboard where you can update your personal information, contact details, and preferences."
-  },
-  {
-    question: "What should I do if I face technical issues?",
-    answer: "If you encounter any technical issues, please use the support form below to contact our technical team. We'll respond within 24 hours."
-  }
-];
 
 export default function SupportPage() {
   const { toast } = useToast();
@@ -87,21 +67,7 @@ export default function SupportPage() {
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Support</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Frequently Asked Questions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible>
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
+      <FAQ section="support" />
 
       <Card>
         <CardHeader>

@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Messages", href: "/admin/messages", icon: Mail },
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Services", href: "/admin/services", icon: Settings },
+  { name: "FAQs", href: "/admin/faqs", icon: HelpCircle },
 ];
 
 export function AdminSidebar() {
