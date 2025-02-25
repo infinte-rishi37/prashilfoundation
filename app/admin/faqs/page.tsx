@@ -76,6 +76,7 @@ export default function AdminFAQsPage() {
     resolver: zodResolver(faqSchema),
     defaultValues: {
       order: 0,
+      section: 'home'
     },
   });
 
@@ -87,7 +88,7 @@ export default function AdminFAQsPage() {
       .order('order', { ascending: true });
 
     if (error) {
-      console.error('Error fetching FAQs:', error);
+      // console.error('Error fetching FAQs:', error);
       return;
     }
 
@@ -102,6 +103,8 @@ export default function AdminFAQsPage() {
   const onSubmit = async (data: FaqForm) => {
     setIsLoading(true);
     try {
+      // console.log('Submitting FAQ:', data); // Debug log
+      
       if (editingFaq) {
         const { error } = await supabase
           .from('faqs')
@@ -117,9 +120,15 @@ export default function AdminFAQsPage() {
       } else {
         const { error } = await supabase
           .from('faqs')
-          .insert([data]);
+          .insert([{
+            ...data,
+            section: activeSection // Ensure section is set from activeSection
+          }]);
 
-        if (error) throw error;
+        if (error) {
+          // console.error('Error creating FAQ:', error); // Debug log
+          throw error;
+        }
 
         toast({
           title: "Success",
@@ -133,6 +142,7 @@ export default function AdminFAQsPage() {
       router.refresh();
       await fetchFaqs();
     } catch (error: any) {
+      // console.error('Error in onSubmit:', error); // Debug log
       toast({
         title: "Error",
         description: error.message || "Something went wrong",
@@ -192,7 +202,12 @@ export default function AdminFAQsPage() {
         <Button
           onClick={() => {
             setEditingFaq(null);
-            reset();
+            reset({
+              question: '',
+              answer: '',
+              section: activeSection,
+              order: 0
+            });
             setIsDialogOpen(true);
           }}
         >
