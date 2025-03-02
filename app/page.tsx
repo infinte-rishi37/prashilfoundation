@@ -115,9 +115,6 @@ export default function Home() {
           <p className={`${yatra.className} text-3xl md:text-4xl mb-8 text-muted-foreground`}>
             श्रद्धावान् लभते ज्ञानम्
           </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            At Prashil Foundation, we bridge the gap between knowledge and opportunity, empowering individuals to unlock their full potential through comprehensive education, career guidance, and financial support.
-          </p>
           <Link href="/auth/sign-up">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
               Get Started <ArrowRight className="ml-2 h-4 w-4" />

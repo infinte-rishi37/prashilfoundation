@@ -24,7 +24,7 @@ const yatra = Yatra_One({
 const team = [
   {
     name: "Dr. Pragya Singh",
-    role: "Founder",
+    role: "Visionary",
     image: "https://jktuoxljbtnrehtnctre.supabase.co/storage/v1/object/public/freebucket//founder1%20pic.jpg",
     bio: "Visionary educator with NET qualification and PhD. Faculty member on various online platforms."
   }
@@ -88,7 +88,7 @@ export default function AboutPage() {
               About Prashil Foundation
             </h1>
             <p className="text-xl text-muted-foreground">
-            At Prashil Foundation, we believe in the power of wisdom and opportunity to transform lives. We are more than an organization—we are a movement dedicated to empowering individuals to unlock their full potential. Through our three innovative branches, we provide end-to-end solutions in education, career guidance, and financial services, making us your trusted partner in every step of your journey to success.
+            We at Prashil Foundation, we believe in the power of wisdom and opportunity to transform lives. We are more than an organization—we are a movement dedicated to empowering individuals to unlock their full potential. Through our three innovative branches, we provide end-to-end solutions in education, career guidance, and financial services, making us your trusted partner in every step of your journey to success.
             </p>
           </div>
         </div>
