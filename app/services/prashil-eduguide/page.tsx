@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, CheckCircle, ArrowRight, Star, MessageCircle, Target, Users, Lightbulb } from "lucide-react";
+import { BookOpen, CheckCircle, ArrowRight, Star, MessageCircle, Target, Users, Lightbulb, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
@@ -68,6 +68,24 @@ const testimonials = [
   }
 ];
 
+const collaborations = [
+  {
+    id: 1,
+    name: "Join In Campus",
+    link: "https://joinincampus.com"
+  },
+  {
+    id: 2,
+    name: "Infinity admissions",
+    link: "https://infinityadmission.com/"
+  },
+  {
+    id: 3,
+    name: "Bodhami",
+    link: "https://bodhami.com"
+  },
+];
+
 export default function PrashilEduGuidePage() {
   const [services, setServices] = useState<EduGuideService[]>([]);
   const [user, setUser] = useState<any>(null);
@@ -101,6 +119,10 @@ export default function PrashilEduGuidePage() {
     );
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
+
+  const redirectToUrl = (url: string) => {
+    window.location.href = url;
+  }
 
   const handleApply = async (service: EduGuideService) => {
     if (!user) {
@@ -248,8 +270,36 @@ export default function PrashilEduGuidePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Career Counselling Services */}
       <section className="py-20">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Collaborations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {collaborations.map((collab) => (
+              <Card key={collab.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle>{collab.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col space-y-2">
+                    <Button 
+                      onClick={() => redirectToUrl(collab.link)}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Visit Now
+                    </Button>
+
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-secondary/5">
         <div className="container px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
