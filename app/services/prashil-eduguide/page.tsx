@@ -150,6 +150,34 @@ export default function PrashilEduGuidePage() {
         </div>
       </section>
 
+      {/* Collab */}
+      <section className="py-20">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Collaborations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {collaborations.map((collab) => (
+              <Card key={collab.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle>{collab.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col space-y-2">
+                    <Button 
+                      onClick={() => redirectToUrl(collab.link)}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Visit Now
+                    </Button>
+
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-20">
         <div className="container px-4">
@@ -181,6 +209,7 @@ export default function PrashilEduGuidePage() {
           </div>
         </div>
       </section>
+
 
       {/* Career Counselling Services */}
       <section className="py-20">
@@ -270,36 +299,8 @@ export default function PrashilEduGuidePage() {
         </div>
       </section>
 
-      {/* Career Counselling Services */}
-      <section className="py-20">
-        <div className="container px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Collaborations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {collaborations.map((collab) => (
-              <Card key={collab.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle>{collab.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col space-y-2">
-                    <Button 
-                      onClick={() => redirectToUrl(collab.link)}
-                      className="flex items-center justify-center gap-2"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Visit Now
-                    </Button>
-
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
-      <section className="py-20 bg-secondary/5">
+      <section className="py-20">
         <div className="container px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
