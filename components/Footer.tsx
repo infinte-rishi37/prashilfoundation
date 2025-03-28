@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -42,16 +42,16 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4">Follow Us</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-border hover:text-primary">
+              <a href="https://www.facebook.com/share/1HKmiHRQ6e/" className="text-border hover:text-primary">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-border hover:text-primary">
-                <Twitter className="h-5 w-5" />
+              <a href="https://youtube.com/@prashilfoundation" className="text-border hover:text-primary">
+                <Youtube className="h-5 w-5" />
               </a>
-              <a href="#" className="text-border hover:text-primary">
+              <a href="https://www.instagram.com/prashilfoundation" className="text-border hover:text-primary">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-border hover:text-primary">
+              <a href="https://www.linkedin.com/company/106925287/" className="text-border hover:text-primary">
                 <Linkedin className="h-5 w-5" />
               </a>
             </div>
